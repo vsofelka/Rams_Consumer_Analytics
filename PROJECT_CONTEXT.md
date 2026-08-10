@@ -2,6 +2,8 @@
 
 This file summarizes everything discussed about this project so it can be handed to Claude Code without relying on a separate chat history. Reference it when prompting Claude Code.
 
+For the reasoning behind each decision below, see [`docs/DECISION_LOG.md`](docs/DECISION_LOG.md). For the technical design of the current build, see [`docs/superpowers/specs/2026-08-10-fan-engagement-churn-design.md`](docs/superpowers/specs/2026-08-10-fan-engagement-churn-design.md).
+
 ## The Application
 
 **Company:** Los Angeles Rams
@@ -10,27 +12,15 @@ This file summarizes everything discussed about this project so it can be handed
 
 Full job description: see [`docs/job_description.md`](docs/job_description.md).
 
-## Project Direction (decided so far)
+## Current Direction
 
-**Core constraint from Victor:** The project should contribute value in-season, not just be a preseason/one-time planning exercise. This points toward models that update on a rolling/recurring basis as new data comes in, rather than a static one-off analysis.
+**Core constraint:** the project should contribute value in-season, not just be a preseason/one-time planning exercise — so it's built as a rolling pipeline that updates on a recurring cadence as new data comes in, rather than a static one-off analysis.
 
-**Candidate use cases discussed (not yet finalized — narrow to one before building):**
+**Use case:** a layered combination of a rolling fan engagement score and a churn risk view. One core pipeline computes a weekly engagement score per Season Ticket Member (STM); churn risk is a second view derived from that same score's trajectory (a sustained decline), not a separately trained model. Purchase/upsell propensity was considered and dropped from scope. See `docs/DECISION_LOG.md` for how this was narrowed down from three candidate use cases and the full reasoning.
 
-1. **Renewal/churn risk scoring** — flag season ticket holders showing early disengagement signals (declining attendance, no merch purchases, drop in app activity) so the team can intervene mid-season rather than waiting until renewal time.
-2. **Rolling fan engagement score** — a score per fan based on recent behavior (attendance streaks, digital activity, purchases) that updates on a regular cadence (e.g. weekly) and feeds targeting decisions.
-3. **Purchase/upsell propensity** — predicting which fans are likely to buy upgrades, merch, or add-ons based on recent activity, refreshed as the season progresses.
+**Deliverable format:** deliberately left open for now. The modeling core is architected to be decoupled from however it's presented, so the format choice (notebook, Streamlit dashboard, Power BI/Tableau report, or some combination) doesn't need to be locked before the real build starts.
 
-As of the last working session, Victor's rough ranking (subject to change) was: 2 (engagement score) > 1 (churn) > 3 (upsell propensity). One idea raised but not committed to: layering these rather than building three separate models — e.g. treating the rolling engagement score as the core pipeline, with churn risk emerging as a downstream read of a sustained score decline. This is still open for discussion.
-
-**Not yet decided:**
-
-- Which single use case to build (check with Victor before finalizing scope, or pick the strongest fit and flag the choice clearly).
-- Final deliverable format. Options discussed:
-  - Interactive web app/dashboard (similar to a prior project built for a different application — Node/Express backend + plain HTML/CSS/JS frontend)
-  - Python/Jupyter notebook with models + visualizations
-  - Power BI or Tableau-style dashboard
-  - Combination: notebook for modeling + simple dashboard for output
-- Timeline: whether this needs to be fully finished before the application is submitted, or built incrementally with details to explain live in an interview (this was the approach for the prior Faraday Future project — build something real, keep refining, discuss specifics in the interview rather than over-describing an unfinished project in application materials).
+**Timeline:** 48-hour MVP target. Starting 2026-08-10, the goal is a working end-to-end pipeline (simulator → engagement score → churn view, with some form of output) within 48 hours — real and demoable, not necessarily polished. This is a hard scoping constraint on the implementation plan, not a soft aim.
 
 ## Technical Environment
 
@@ -41,14 +31,18 @@ As of the last working session, Victor's rough ranking (subject to change) was: 
 
 ## What NOT to Do
 
-- Don't build multiple use cases at once — the JD lists many possible models (CLV, churn, clusters, purchase motivators), but the plan is to build one well rather than touch all of them.
-- Don't assume the deliverable format yet if this file is out of date — confirm with Victor which format was ultimately chosen before scaffolding a full project.
-- Mirror the approach from the previous project: build something that actually runs (not a mockup), keep the code readable since it may be extended live with Claude Code, and don't over-polish to the point of pretending it's more finished than it is if it's still a work in progress.
+- **Don't build multiple use cases at once.** The JD lists many possible models (CLV, churn, clusters, purchase motivators), and it would be easy to try to touch all of them. The plan is to build one well rather than build several shallowly.
+- **Don't scaffold a specific deliverable format prematurely.** It's deliberately left open (see Current Direction above) — the modeling core stays decoupled from presentation so the format choice can be made cheaply once there's something real to wrap.
+- **Build something that actually runs, not a mockup.** The point of this project is being able to speak concretely about real design decisions and real output — a static mockup or hardcoded example wouldn't hold up under follow-up questions.
+- **Keep the code readable.** It may be extended live with Claude Code, so clarity matters more than cleverness.
+- **Don't over-polish to the point of misrepresenting how finished it is.** If it's still a work in progress, it should look and read like one.
 
-## Next Step
+## Open Items
 
-Before scaffolding the full project, confirm with Victor (if not already answered elsewhere):
+- Final deliverable format (notebook / Streamlit / Power BI / Tableau / combination) — deliberately deferred, see above.
 
-1. Which of the three in-season use cases to build (or confirm a different direction).
-2. Final format for the deliverable.
-3. Whether this needs to be finished before submitting the application, or can be built incrementally.
+## Where to Look for More
+
+- **How we got here, and why:** [`docs/DECISION_LOG.md`](docs/DECISION_LOG.md) — chronological record of key decisions as the project was worked through.
+- **Current technical design:** [`docs/superpowers/specs/`](docs/superpowers/specs/) — design docs for each part of the build.
+- **The job posting this project is built against:** [`docs/job_description.md`](docs/job_description.md).
