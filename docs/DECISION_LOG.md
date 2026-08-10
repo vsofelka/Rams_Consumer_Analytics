@@ -71,3 +71,11 @@ Initial rough ranking: engagement score > churn > upsell propensity.
 **Decision:** For the 48-hour MVP, keep the simulator, composite engagement score, rule-based churn view, and the planted-churn-cohort validation exactly as designed. Simplify: a smaller synthetic STM population, one coarse digital-engagement signal instead of several, and a handful of core unit tests instead of exhaustive edge-case coverage. Cut entirely from this pass: the Streamlit dashboard. Notebooks are the only output for the MVP.
 
 **Why:** The core modeling pipeline and its validation are the actual substance of the project and can't be trimmed without losing the point. The dashboard was already architected to be decoupled from the core (see the 2026-08-10 deliverable-format entry above), making it the natural thing to defer past the 48-hour mark rather than let it compete with build time the modeling logic needs.
+
+---
+
+## 2026-08-10 — 48-hour timeline extended by a couple of days
+
+**Decision:** The original 48-hour MVP deadline has been pushed out by a couple of extra days. The task sequence and scope already in progress (per the implementation plan) continue unchanged — the extension is treated as buffer, not an automatic trigger to re-scope back in what was trimmed (Streamlit dashboard, fuller test coverage, larger population).
+
+**Why:** External timeline change, not a change in project requirements. Re-opening scope mid-build (e.g. resurrecting the dashboard) is a separate decision to make deliberately once the MVP task sequence is done, not something to fold in reactively while tasks are mid-review.

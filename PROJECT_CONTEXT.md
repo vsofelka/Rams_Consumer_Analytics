@@ -20,7 +20,7 @@ Full job description: see [`docs/job_description.md`](docs/job_description.md).
 
 **Deliverable format:** deliberately left open for now. The modeling core is architected to be decoupled from however it's presented, so the format choice (notebook, Streamlit dashboard, Power BI/Tableau report, or some combination) doesn't need to be locked before the real build starts.
 
-**Timeline:** 48-hour MVP target. Starting 2026-08-10, the goal is a working end-to-end pipeline (simulator → engagement score → churn view, with some form of output) within 48 hours — real and demoable, not necessarily polished. This is a hard scoping constraint on the implementation plan, not a soft aim.
+**Timeline:** extended. The original 48-hour MVP target (starting 2026-08-10) has been pushed out by a couple of extra days — still a real constraint, just less compressed. The in-progress MVP build (see the implementation plan) continues on the same task sequence; the extra time is buffer rather than a mandate to re-scope mid-build. See `docs/DECISION_LOG.md` for the original 48-hour decision and this extension.
 
 ## Technical Environment
 
