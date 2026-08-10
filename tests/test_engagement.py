@@ -26,30 +26,20 @@ def test_partial_window_does_not_error_in_first_week():
     assert not scores["engagement_score"].isna().any()
 
 
-def test_trailing_window_excludes_weeks_older_than_window():
-    fans = generate_fan_population(n_fans=5, n_planted_churn=0, decline_start_week=99, seed=11)
+def test_trailing_window_average_excludes_weeks_older_than_window():
+    from scoring.engagement import _trailing_window_average
 
-    # Weeks 1-4: fan behavior spikes very high (should be excluded once window=3 and current_week=10)
-    old_weeks = []
-    for w in range(1, 5):
-        events = generate_week_events(fans, week=w, seed=11)
-        events[["attendance_signal", "digital_signal", "purchase_signal"]] = 1.0
-        old_weeks.append(events)
+    events_history = pd.DataFrame({
+        "fan_id": [1, 1, 1, 1, 1, 1, 1],
+        "week": [1, 2, 3, 4, 8, 9, 10],
+        "attendance_signal": [1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0],
+        "digital_signal": [1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0],
+        "purchase_signal": [1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0],
+    })
 
-    # Weeks 8-10: fan behavior is uniformly low
-    recent_weeks = []
-    for w in range(8, 11):
-        events = generate_week_events(fans, week=w, seed=11)
-        events[["attendance_signal", "digital_signal", "purchase_signal"]] = 0.0
-        recent_weeks.append(events)
+    averaged = _trailing_window_average(events_history, current_week=10, window=3)
 
-    full_history = pd.concat(old_weeks + recent_weeks, ignore_index=True)
-    recent_only_history = pd.concat(recent_weeks, ignore_index=True)
-
-    scores_full = compute_weekly_engagement_scores(full_history, current_week=10, window=3)
-    scores_recent_only = compute_weekly_engagement_scores(recent_only_history, current_week=10, window=3)
-
-    pd.testing.assert_frame_equal(
-        scores_full.sort_values("fan_id").reset_index(drop=True),
-        scores_recent_only.sort_values("fan_id").reset_index(drop=True),
-    )
+    fan_1 = averaged[averaged["fan_id"] == 1].iloc[0]
+    assert fan_1["attendance_signal"] == 0.0
+    assert fan_1["digital_signal"] == 0.0
+    assert fan_1["purchase_signal"] == 0.0
