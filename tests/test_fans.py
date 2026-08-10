@@ -18,3 +18,11 @@ def test_generate_fan_population_is_reproducible_with_seed():
     fans_a = generate_fan_population(n_fans=50, n_planted_churn=5, decline_start_week=6, seed=7)
     fans_b = generate_fan_population(n_fans=50, n_planted_churn=5, decline_start_week=6, seed=7)
     pd.testing.assert_frame_equal(fans_a, fans_b)
+
+
+def test_decline_start_week_set_only_for_planted_churn_fans():
+    fans = generate_fan_population(n_fans=40, n_planted_churn=6, decline_start_week=6, seed=3)
+    planted = fans[fans["is_planted_churn"]]
+    not_planted = fans[~fans["is_planted_churn"]]
+    assert (planted["decline_start_week"] == 6).all()
+    assert not_planted["decline_start_week"].isna().all()
