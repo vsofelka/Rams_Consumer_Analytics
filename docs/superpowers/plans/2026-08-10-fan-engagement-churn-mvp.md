@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Build a working, validated, end-to-end pipeline — synthetic season simulator → rolling fan engagement score → churn risk view — that runs week-by-week and proves itself against a known "planted churn cohort," delivered as notebooks (no dashboard yet).
+**Goal:** Build a working, validated, end-to-end pipeline — synthetic season simulator → rolling fan engagement score → churn risk view — that runs week-by-week and proves itself against a known "planted churn cohort," delivered as notebooks (no dashboard yet) plus a short results summary stating the actual validated numbers.
 
 **Architecture:** A season simulator (`season_simulator/`) generates STM population and weekly behavior data one week at a time. Two pure-function scoring modules (`scoring/engagement.py`, `scoring/churn.py`) consume accumulated history and produce a score and a risk flag per fan per week. A runner script (`scripts/run_season.py`) wires these together and writes structured CSV output per week. Notebooks read only the CSV output — never the simulator or scoring code directly — keeping the modeling core fully decoupled from presentation, per the design doc.
 
@@ -16,6 +16,7 @@
 - The simulator must plant a known-ground-truth churn cohort so detection can be validated with precision/recall, not eyeballed. (Design doc: "Validation")
 - 48-hour MVP scope trims: a smaller synthetic population, one coarse digital-engagement signal (not several sub-metrics), a handful of core unit tests rather than exhaustive edge-case coverage, and notebooks as the only output — no Streamlit dashboard in this pass. (Decision log: "MVP scope trimmed to fit the 48-hour window")
 - Edge cases that must not error: a partial trailing window in the season's first weeks, and a brand-new STM with no score history (no flag, not an exception). (Design doc: "Engagement score", "Churn risk view")
+- Task 11's results summary must state real numbers observed from the actual run, cross-checked against the notebook output — never placeholder or projected figures. (Decision log: "Timeline extended by a couple of days")
 
 ---
 
@@ -1018,10 +1019,54 @@ EOF
 
 ---
 
+### Task 11: Results summary for interview reference
+
+**Files:**
+- Create: `docs/RESULTS.md`
+
+**Interfaces:**
+- Consumes: the actual output produced by running Notebooks 1–3 (Tasks 8–10) against the real season generated in Task 7 — the precision/recall/F1 numbers, the at-risk list, and the tier distribution. This task cannot be done until Tasks 7–10 have actually been run, since it reports real numbers, not projected ones.
+
+Added per a scope decision made after the original 10-task plan: with the timeline extended, a short standalone writeup of what the validated results actually show is useful for interview reference — readable without opening Jupyter, and a sanity check on the results before discussing them live.
+
+- [ ] **Step 1: Re-open Notebook 3 (or read its saved cell outputs) and record the actual numbers**
+
+From the saved outputs of `notebooks/03_churn_view.ipynb` (Task 10), note:
+- The final week's precision, recall, and F1 from the `evaluate_churn_detection` call.
+- The count of fans flagged `at_risk` in the final week.
+- From Notebook 2 (Task 9), the tier distribution (`tier.value_counts()`) for the final week.
+
+- [ ] **Step 2: Write `docs/RESULTS.md`**
+
+Structure it around what was actually observed, using the real numbers from Step 1 — not placeholders. Cover, in plain language a non-technical reader (or a technical interviewer skimming quickly) can follow:
+- What the pipeline does in one paragraph (rolling engagement score, churn view as a derived trend read).
+- The validation result: how many of the planted-churn fans the rule caught by the final week (recall), how many flags were false alarms (precision), stated plainly (e.g. "caught N of M fans who were declining, with P false alarms").
+- One honest paragraph on what the numbers do and don't prove — this is a rule-based heuristic validated against synthetic, planted-pattern data, not a trained model validated against real fan behavior. State that directly; don't oversell it.
+- A pointer to where to look for more: the design doc, decision log, and the three notebooks themselves.
+
+- [ ] **Step 3: Cross-check the numbers against the notebook outputs one more time**
+
+Re-read the saved notebook cell outputs and confirm every number quoted in `docs/RESULTS.md` matches exactly. A mismatch here is worse than not writing the doc at all — it would misrepresent what the project shows in front of an interviewer.
+
+- [ ] **Step 4: Commit**
+
+```bash
+git add docs/RESULTS.md
+git commit -m "$(cat <<'EOF'
+Add results summary with actual validation numbers from the MVP run
+
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+EOF
+)"
+```
+
+---
+
 ## Definition of Done for the MVP
 
 - `pytest -v` passes across all of Tasks 1–7.
 - `python scripts/run_season.py` runs without error and produces `fans.csv` plus 18 weekly CSVs in `data/weekly_snapshots/`.
 - All three notebooks run top-to-bottom without error and produce the expected output described in their tasks.
 - Notebook 3's validation cell shows recall > 0 against the planted churn cohort.
-- No Streamlit dashboard, no trained classifier, no Power BI/Tableau work — those are explicitly out of scope for this MVP pass (see Decision Log).
+- `docs/RESULTS.md` states the actual observed precision/recall/F1 and at-risk count, matching the notebook output exactly.
+- No Streamlit dashboard, no trained classifier, no Power BI/Tableau work — those are explicitly out of scope for this MVP pass (see Decision Log). What to do with the extra timeline room is a decision to make after this list is complete, not mid-build.

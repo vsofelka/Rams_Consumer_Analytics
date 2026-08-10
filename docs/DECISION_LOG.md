@@ -79,3 +79,11 @@ Initial rough ranking: engagement score > churn > upsell propensity.
 **Decision:** The original 48-hour MVP deadline has been pushed out by a couple of extra days. The task sequence and scope already in progress (per the implementation plan) continue unchanged — the extension is treated as buffer, not an automatic trigger to re-scope back in what was trimmed (Streamlit dashboard, fuller test coverage, larger population).
 
 **Why:** External timeline change, not a change in project requirements. Re-opening scope mid-build (e.g. resurrecting the dashboard) is a separate decision to make deliberately once the MVP task sequence is done, not something to fold in reactively while tasks are mid-review.
+
+---
+
+## 2026-08-10 — Results summary added as Task 11
+
+**Decision:** Add a short standalone `docs/RESULTS.md` as a final task after the notebooks, stating the actual observed precision/recall/F1 and at-risk count from the real run — not projected numbers. Everything else about the 10-task MVP plan stays unchanged; this is additive, not a re-scope.
+
+**Why:** With the timeline extended, a plain-language summary of what the validated results actually show is useful for interview reference without needing to open Jupyter, and forces one more honest cross-check that the numbers being discussed match what the notebooks actually produced.
