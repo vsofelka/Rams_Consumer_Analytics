@@ -21,3 +21,6 @@ Thumbs.db
 # Editors
 .vscode/
 .idea/
+
+# Generated data
+data/weekly_snapshots/
