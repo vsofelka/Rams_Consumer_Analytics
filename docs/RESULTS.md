@@ -48,6 +48,16 @@ So the constraint is the *strict monotonic decline* requirement, and the reason 
 
 This is a real and instructive limitation of the rule, not a bug: **a "still falling" rule stops firing once a fan has already hit bottom.** A production version would pair the decline-streak trigger with a "sustained low level" condition so that fans who already churned stay visible instead of aging out of the flag.
 
+## Statistical validation
+
+The results above are point estimates from a single run. `notebooks/04_sql_analysis.ipynb` runs three formal statistical tests against the same week-18 data to check whether those numbers hold up.
+
+- **Is the planted-churn cohort's decline statistically real?** Yes — a Mann-Whitney U test comparing the 25 planted-churn fans' week-18 engagement scores (median 5.60) against everyone else's (median 54.63) gives p = 0.000000, well below 0.05. The gap visible in the charts is not sampling noise.
+- **How precise are the precision/recall numbers, really?** With only 13 fans flagged, the point estimates carry real uncertainty: precision is 0.62, with a 95% Wilson confidence interval of (0.36, 0.82), and recall is 0.32, with a 95% Wilson confidence interval of (0.17, 0.52). Read these as ranges, not exact figures.
+- **Does the rule beat random chance?** Yes, decisively. Flagging 13 fans at random out of 300, with 25 true churners in the population, would be expected to catch only about 1.08 true positives by luck (13 × 25 / 300). The rule actually caught 8. A hypergeometric test puts the probability of matching or beating 8 true positives by chance alone at p = 0.000001.
+
+These three tests were each chosen to fit the shape of the actual data — a rank-based test for a non-normally-distributed score, an interval method suited to small counts, and an exact test suited to sampling without replacement — rather than one default technique applied everywhere; see `docs/DECISION_LOG.md` for the full reasoning.
+
 ## What this does and doesn't prove
 
 This validates that the rule-based heuristic is directionally correct — it enriches meaningfully for fans on a known decline path. The base rate is 25 planted churners out of 300 fans, about 8%, so flagging 13 fans at random would be expected to land roughly 8% precision (about 1 real churner). The observed 0.62 precision is therefore around **7–8x better than random guessing**, and it reaches 1.00 at weeks 12–13. That's a genuine, real result from a real run of the pipeline.
