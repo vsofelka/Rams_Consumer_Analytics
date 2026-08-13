@@ -36,6 +36,11 @@ def run_season(
 
     db_conn = None
     if db_path is not None:
+        # A fresh season overwrites the old one, matching the CSV output's
+        # semantics. write_fans appends into a PRIMARY KEY column, so reusing an
+        # existing database file would raise a UNIQUE constraint error instead.
+        if os.path.exists(db_path):
+            os.remove(db_path)
         db_conn = sqlite3.connect(db_path)
         create_schema(db_conn)
         write_fans(db_conn, fans)

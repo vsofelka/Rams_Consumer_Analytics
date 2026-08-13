@@ -60,6 +60,36 @@ def test_run_season_writes_to_sqlite_when_db_path_given(tmp_path):
     assert snapshots_count == 20 * 4
 
 
+def test_run_season_twice_to_same_db_path_does_not_accumulate_rows(tmp_path):
+    # A second run against an existing database file used to raise
+    # sqlite3.IntegrityError (UNIQUE constraint failed: fans.fan_id), because
+    # write_fans appends into a PRIMARY KEY column. A fresh season replaces the
+    # database, the same way it overwrites the CSV output.
+    import sqlite3
+
+    db_path = str(tmp_path / "rerun.db")
+    kwargs = dict(
+        n_fans=10,
+        n_planted_churn=1,
+        decline_start_week=2,
+        n_weeks=2,
+        output_dir=str(tmp_path / "weekly_snapshots"),
+        seed=57,
+        db_path=db_path,
+    )
+
+    run_season(**kwargs)
+    run_season(**kwargs)
+
+    conn = sqlite3.connect(db_path)
+    fans_count = conn.execute("SELECT COUNT(*) FROM fans").fetchone()[0]
+    snapshots_count = conn.execute("SELECT COUNT(*) FROM weekly_snapshots").fetchone()[0]
+    conn.close()
+
+    assert fans_count == 10
+    assert snapshots_count == 10 * 2
+
+
 def test_run_season_skips_sqlite_when_db_path_omitted(tmp_path):
     fans, events_history, score_history, snapshots = run_season(
         n_fans=10,
