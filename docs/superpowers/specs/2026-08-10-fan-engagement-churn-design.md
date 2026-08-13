@@ -51,7 +51,7 @@ The simulator advances week-by-week and appends to history rather than generatin
 - Computed per STM per week, using a **trailing 4–8 week recency-weighted window** so a recent hot or cold streak matters more than one old data point.
 - Input categories: attendance rate, digital activity (app/site logins, email/push engagement), purchase activity (tickets beyond plan, merch, F&B), tenure as a mild modifier.
 - Each category is normalized to 0–100 **within that week's population** (percentile-based, not fixed cutoffs), so the score stays meaningful even as the underlying data or season stage shifts.
-- Categories are combined into a single 0–100 score via a weighted sum, then bucketed into tiers: Super Fan / Engaged / At Risk / Dormant.
+- Categories are combined into a single 0–100 score via a weighted sum, then bucketed into tiers: Super Fan / Engaged / Cooling / Dormant.
 - **Method:** starts as a transparent weighted composite index, not a trained model. The output shape (one score per STM per week) is designed so a learned regression (predicting a real forward-looking outcome like next-30-day spend) could later replace the composite as a drop-in, without changing anything downstream.
 - First few weeks of a season won't have a full trailing window; the score computation averages over whatever weeks exist so far rather than erroring. A brand-new STM with zero history gets no score-based churn flag (no streak exists yet) rather than an error.
 
