@@ -18,9 +18,9 @@ Full job description: see [`docs/job_description.md`](docs/job_description.md).
 
 **Use case:** a layered combination of a rolling fan engagement score and a churn risk view. One core pipeline computes a weekly engagement score per Season Ticket Member (STM); churn risk is a second view derived from that same score's trajectory (a sustained decline), not a separately trained model. Purchase/upsell propensity was considered and dropped from scope. See `docs/DECISION_LOG.md` for how this was narrowed down from three candidate use cases and the full reasoning.
 
-**Deliverable format:** deliberately left open for now. The modeling core is architected to be decoupled from however it's presented, so the format choice (notebook, Streamlit dashboard, Power BI/Tableau report, or some combination) doesn't need to be locked before the real build starts.
+**Deliverable format:** the MVP ships as Jupyter notebooks plus a written results summary ([`docs/RESULTS.md`](docs/RESULTS.md)). Whether to wrap it in anything further — a Streamlit dashboard, a Power BI/Tableau report, or some combination — remains a genuinely open, deliberately deferred decision. The modeling core is architected to be decoupled from however it's presented, so that choice can still be made cheaply now that there's something real to wrap.
 
-**Timeline:** extended. The original 48-hour MVP target (starting 2026-08-10) has been pushed out by a couple of extra days — still a real constraint, just less compressed. The in-progress MVP build (see the implementation plan) continues on the same task sequence; the extra time is buffer rather than a mandate to re-scope mid-build. See `docs/DECISION_LOG.md` for the original 48-hour decision and this extension.
+**Timeline:** extended. The original 48-hour MVP target (starting 2026-08-10) was pushed out by a couple of extra days — still a real constraint, just less compressed. The MVP build (see the implementation plan) ran through its full task sequence and is now complete: simulator, scoring modules, season runner, three notebooks, and `docs/RESULTS.md`. The extra time was buffer rather than a mandate to re-scope mid-build. See `docs/DECISION_LOG.md` for the original 48-hour decision and this extension.
 
 ## Technical Environment
 
