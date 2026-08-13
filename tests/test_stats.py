@@ -44,6 +44,27 @@ def test_compare_churn_cohort_engagement_no_difference_is_not_significant():
     assert result["p_value"] > 0.05
 
 
+def test_compare_churn_cohort_engagement_handles_int_is_planted_churn_column():
+    # SQLite has no native boolean type, so a column written as 0/1 comes back
+    # from pd.read_sql as int64, not bool. Guard against the int64 case
+    # regressing to fancy/label-based .loc indexing instead of boolean masking
+    # (which previously raised a KeyError on the "rest" cohort via `~int64`).
+    fans = pd.DataFrame({
+        "fan_id": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+        "is_planted_churn": [1, 1, 1, 1, 1, 0, 0, 0, 0, 0],
+    })
+    assert fans["is_planted_churn"].dtype != bool
+    scores = pd.DataFrame({
+        "fan_id": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+        "engagement_score": [10.0, 12.0, 14.0, 16.0, 18.0, 70.0, 72.0, 74.0, 76.0, 78.0],
+    })
+    result = compare_churn_cohort_engagement(scores, fans)
+    assert result["p_value"] < 0.05
+    assert result["planted_median"] < result["rest_median"]
+    assert result["n_planted"] == 5
+    assert result["n_rest"] == 5
+
+
 def test_wilson_confidence_interval_contains_point_estimate_and_is_bounded():
     result = wilson_confidence_interval(successes=8, n=25, confidence=0.95)
     assert result["point_estimate"] == pytest.approx(0.32)

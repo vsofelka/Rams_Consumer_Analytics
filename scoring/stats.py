@@ -5,8 +5,9 @@ from scipy import stats
 
 def compare_churn_cohort_engagement(scores: "pd.DataFrame", fans: "pd.DataFrame") -> dict:
     merged = scores.merge(fans[["fan_id", "is_planted_churn"]], on="fan_id")
-    planted = merged.loc[merged["is_planted_churn"], "engagement_score"]
-    rest = merged.loc[~merged["is_planted_churn"], "engagement_score"]
+    is_planted = merged["is_planted_churn"].astype(bool)
+    planted = merged.loc[is_planted, "engagement_score"]
+    rest = merged.loc[~is_planted, "engagement_score"]
 
     statistic, p_value = stats.mannwhitneyu(planted, rest, alternative="less")
 
