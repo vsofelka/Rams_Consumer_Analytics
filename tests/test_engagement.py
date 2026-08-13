@@ -14,7 +14,7 @@ def test_engagement_score_in_valid_range():
 
     assert len(scores) == 30
     assert scores["engagement_score"].between(0, 100).all()
-    assert set(scores["tier"].unique()).issubset({"Dormant", "At Risk", "Engaged", "Super Fan"})
+    assert set(scores["tier"].unique()).issubset({"Dormant", "Cooling", "Engaged", "Super Fan"})
 
 
 def test_partial_window_does_not_error_in_first_week():

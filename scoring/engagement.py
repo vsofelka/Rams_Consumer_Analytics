@@ -35,7 +35,7 @@ def compute_weekly_engagement_scores(events_history, current_week, window=6):
     scored["tier"] = pd.cut(
         scored["engagement_score"],
         bins=[-0.1, 25, 50, 75, 100],
-        labels=["Dormant", "At Risk", "Engaged", "Super Fan"],
+        labels=["Dormant", "Cooling", "Engaged", "Super Fan"],
     ).astype(str)
 
     return scored[["fan_id", "week", "engagement_score", "tier"]]
