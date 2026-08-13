@@ -5,7 +5,7 @@
 The 11-task MVP (synthetic season simulator → rolling engagement score → rule-based churn view → notebooks → `docs/RESULTS.md`) is complete and pushed. This is Phase A of a three-phase follow-on, prompted by two things:
 
 1. **The timeline was extended**, so scope deliberately trimmed for the 48-hour MVP (population size, dashboard) is back in play.
-2. **Recruiter-alignment context**: the recruiter for this Rams role was interviewed and named her top three recommendations for success in data science as (1) mastering SQL, (2) performing and interpreting different types of statistical models/testing, and (3) data storytelling. The current project has none of the first two and only notebooks for the third. See `docs/DECISION_LOG.md` for the full reasoning.
+2. **Skill-alignment gap**: SQL, statistical rigor, and clear data storytelling are widely recognized as core skills for data science and analytics roles, and the current project has none of the first two and only notebooks (not a live dashboard) for the third. See `docs/DECISION_LOG.md` for the full reasoning.
 
 The three phases, in dependency order:
 
@@ -65,7 +65,7 @@ Reads from `data/fan_analytics.db` only. Contents:
 
 ## Documentation
 
-- `docs/DECISION_LOG.md` — new entries: the recruiter-alignment context that triggered this phase, the SQL engine choice and why, the statistical test choices and why.
+- `docs/DECISION_LOG.md` — new entries: the skill-alignment context that triggered this phase, the SQL engine choice and why, the statistical test choices and why.
 - `docs/RESULTS.md` — new "Statistical Validation" section with the real numbers produced by the notebook, following the doc's existing real-numbers-only rule.
 - `README.md` — **not** updated in this phase; held until Phase C (scale-up) so it's written once against final numbers instead of three separate edits.
 
