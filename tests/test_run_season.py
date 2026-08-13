@@ -35,3 +35,38 @@ def test_run_season_flags_some_planted_churn_fans_by_final_week(tmp_path):
     at_risk_final = snapshots[final_week][["fan_id", "week", "at_risk"]]
     result = evaluate_churn_detection(at_risk_final, fans, week=final_week)
     assert result["recall"] > 0
+
+
+def test_run_season_writes_to_sqlite_when_db_path_given(tmp_path):
+    import sqlite3
+
+    db_path = str(tmp_path / "test.db")
+    fans, events_history, score_history, snapshots = run_season(
+        n_fans=20,
+        n_planted_churn=2,
+        decline_start_week=3,
+        n_weeks=4,
+        output_dir=str(tmp_path / "weekly_snapshots"),
+        seed=55,
+        db_path=db_path,
+    )
+
+    conn = sqlite3.connect(db_path)
+    fans_count = conn.execute("SELECT COUNT(*) FROM fans").fetchone()[0]
+    snapshots_count = conn.execute("SELECT COUNT(*) FROM weekly_snapshots").fetchone()[0]
+    conn.close()
+
+    assert fans_count == 20
+    assert snapshots_count == 20 * 4
+
+
+def test_run_season_skips_sqlite_when_db_path_omitted(tmp_path):
+    fans, events_history, score_history, snapshots = run_season(
+        n_fans=10,
+        n_planted_churn=1,
+        decline_start_week=2,
+        n_weeks=2,
+        output_dir=str(tmp_path / "weekly_snapshots"),
+        seed=56,
+    )
+    assert len(snapshots) == 2

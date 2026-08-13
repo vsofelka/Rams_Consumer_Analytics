@@ -24,3 +24,4 @@ Thumbs.db
 
 # Generated data
 data/weekly_snapshots/
+data/fan_analytics.db

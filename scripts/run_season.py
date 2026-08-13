@@ -1,4 +1,5 @@
 import os
+import sqlite3
 import sys
 
 import pandas as pd
@@ -14,6 +15,7 @@ from season_simulator.fans import generate_fan_population
 from season_simulator.events import generate_week_events
 from scoring.engagement import compute_weekly_engagement_scores
 from scoring.churn import apply_churn_rule
+from storage.db import create_schema, write_fans, write_weekly_snapshot
 
 
 def run_season(
@@ -26,10 +28,17 @@ def run_season(
     decline_weeks=3,
     risk_percentile=25.0,
     seed=42,
+    db_path=None,
 ):
     fans = generate_fan_population(n_fans, n_planted_churn, decline_start_week, seed=seed)
     os.makedirs(output_dir, exist_ok=True)
     fans.to_csv(os.path.join(output_dir, "fans.csv"), index=False)
+
+    db_conn = None
+    if db_path is not None:
+        db_conn = sqlite3.connect(db_path)
+        create_schema(db_conn)
+        write_fans(db_conn, fans)
 
     # Accumulate per-week frames in lists and concat them each iteration. Seeding
     # the history with an empty `columns=`-only DataFrame instead would make every
@@ -45,22 +54,29 @@ def run_season(
     )
     score_history = pd.DataFrame(columns=["fan_id", "week", "engagement_score", "tier"])
 
-    for week in range(1, n_weeks + 1):
-        week_events = generate_week_events(fans, week, seed=seed)
-        event_frames.append(week_events)
-        events_history = pd.concat(event_frames, ignore_index=True)
+    try:
+        for week in range(1, n_weeks + 1):
+            week_events = generate_week_events(fans, week, seed=seed)
+            event_frames.append(week_events)
+            events_history = pd.concat(event_frames, ignore_index=True)
 
-        week_scores = compute_weekly_engagement_scores(events_history, current_week=week, window=window)
-        score_frames.append(week_scores)
-        score_history = pd.concat(score_frames, ignore_index=True)
+            week_scores = compute_weekly_engagement_scores(events_history, current_week=week, window=window)
+            score_frames.append(week_scores)
+            score_history = pd.concat(score_frames, ignore_index=True)
 
-        week_at_risk = apply_churn_rule(
-            score_history, current_week=week, decline_weeks=decline_weeks, risk_percentile=risk_percentile
-        )
+            week_at_risk = apply_churn_rule(
+                score_history, current_week=week, decline_weeks=decline_weeks, risk_percentile=risk_percentile
+            )
 
-        snapshot = week_scores.merge(week_at_risk[["fan_id", "at_risk"]], on="fan_id")
-        snapshot.to_csv(os.path.join(output_dir, f"week_{week:02d}.csv"), index=False)
-        weekly_snapshots[week] = snapshot
+            snapshot = week_scores.merge(week_at_risk[["fan_id", "at_risk"]], on="fan_id")
+            snapshot.to_csv(os.path.join(output_dir, f"week_{week:02d}.csv"), index=False)
+            weekly_snapshots[week] = snapshot
+
+            if db_conn is not None:
+                write_weekly_snapshot(db_conn, snapshot)
+    finally:
+        if db_conn is not None:
+            db_conn.close()
 
     return fans, events_history, score_history, weekly_snapshots
 
@@ -72,4 +88,5 @@ if __name__ == "__main__":
         decline_start_week=6,
         n_weeks=18,
         output_dir="data/weekly_snapshots",
+        db_path="data/fan_analytics.db",
     )
