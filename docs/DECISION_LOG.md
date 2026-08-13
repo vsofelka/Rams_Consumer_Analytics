@@ -87,3 +87,31 @@ Initial rough ranking: engagement score > churn > upsell propensity.
 **Decision:** Add a short standalone `docs/RESULTS.md` as a final task after the notebooks, stating the actual observed precision/recall/F1 and at-risk count from the real run — not projected numbers. Everything else about the 10-task MVP plan stays unchanged; this is additive, not a re-scope.
 
 **Why:** With the timeline extended, a plain-language summary of what the validated results actually show is useful for interview reference without needing to open Jupyter, and forces one more honest cross-check that the numbers being discussed match what the notebooks actually produced.
+
+---
+
+## 2026-08-12 — Post-MVP scope driven by recruiter-alignment research
+
+**Decision:** With the MVP complete and the timeline extended further, take on three more pieces of work: a real SQL layer, statistical validation, and a Streamlit dashboard — then scale the population back up. Split into three phased sub-projects in dependency order: (A) SQL backbone + statistical validation, (B) Streamlit dashboard (built against A's SQL layer), (C) scale-up to ~2,000+ fans (deferred to last since it's just parameters once A and B exist, and doing it last avoids re-running an expensive regeneration cycle mid-build).
+
+**Why:** The recruiter for this exact role was interviewed publicly and named her top three recommendations for success in data science: mastering SQL, performing and interpreting different types of statistical models/testing, and data storytelling. The MVP as built has none of the first two, and only notebooks (not a live dashboard) for the third. This is the same kind of direct-JD-language mapping that drove the original engagement-score/churn-view use-case decision (see 2026-08-09 to 2026-08-10 entry above) — building toward specific, sourced language rather than generic "add more features."
+
+**Also considered and deferred:** real historical data, to replace the synthetic simulator. Rejected for now — the planted-churn cohort is what makes the current validation honest (known ground truth to measure precision/recall against); real data wouldn't have that, and no concrete real dataset is in hand yet. Revisit if a specific dataset becomes available. Also considered: a lightweight trained classifier as a second, genuinely different model type (would strengthen the "different types of models" angle further) — deferred out of this round to keep Phase A scoped; noted as future work.
+
+**Reference:** [`docs/superpowers/specs/2026-08-12-sql-stats-backbone-design.md`](superpowers/specs/2026-08-12-sql-stats-backbone-design.md).
+
+---
+
+## 2026-08-12 — SQLite chosen as the SQL engine
+
+**Decision:** Use SQLite for the new database layer, not DuckDB, PostgreSQL, or a cloud warehouse (Snowflake/BigQuery).
+
+**Why:** The project's whole ethos is "clone it, `pip install`, run one command" — no server to stand up, no account to create. SQLite is built into Python's standard library (zero extra dependency) and is the most universally recognized engine. DuckDB was the closest alternative (also embedded/serverless, purpose-built for analytical queries) but was passed over for maximum simplicity; PostgreSQL/MySQL require a running server and Snowflake/BigQuery require a cloud account, both of which would break the zero-setup requirement for anyone reviewing the repo. The SQL written is standard regardless of engine, so this choice doesn't change what skill is being demonstrated — only how much friction there is to run it.
+
+---
+
+## 2026-08-12 — Three statistical tests chosen to fit what's actually being tested
+
+**Decision:** Add `scoring/stats.py` with three specific techniques rather than one default test reused everywhere: a Mann-Whitney U test (planted-churn cohort vs. everyone else's engagement score), a Wilson score confidence interval (around the churn rule's precision/recall), and a hypergeometric test (probability of the observed true-positive count arising by chance).
+
+**Why:** Each was picked to match the actual data-generating process rather than reached for by default — Mann-Whitney over a t-test because `engagement_score` is a percentile rank, not normally distributed; Wilson over a naive normal-approximation CI because the counts involved (13 flagged, 25 planted) are small and close to the boundary; hypergeometric over binomial because fans are drawn without replacement from a finite population of 300. Using three distinct techniques, each justified on its own terms, is the concrete version of the recruiter's "interpret different types of statistical models/testing" recommendation.
