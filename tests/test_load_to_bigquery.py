@@ -5,7 +5,7 @@ import pandas as pd
 from google.cloud import bigquery
 
 from storage.db import create_schema, write_fans, write_weekly_snapshot
-from scripts.load_to_bigquery import read_fans, read_weekly_snapshots, ensure_dataset, load_dataframe
+from scripts.load_to_bigquery import read_fans, read_weekly_snapshots, ensure_dataset, load_dataframe, create_views
 
 
 def _fans_fixture():
@@ -84,3 +84,19 @@ def test_load_dataframe_truncates_and_waits_for_job():
     assert args[1] == "rams-fan-analytics.rams_fan_analytics.fans"
     assert kwargs["job_config"].write_disposition == bigquery.WriteDisposition.WRITE_TRUNCATE
     job.result.assert_called_once()
+
+
+def test_create_views_runs_three_create_or_replace_statements():
+    client = MagicMock()
+    query_job = MagicMock()
+    client.query.return_value = query_job
+
+    create_views(client, "rams-fan-analytics", "rams_fan_analytics")
+
+    assert client.query.call_count == 3
+    executed_sql = [call.args[0] for call in client.query.call_args_list]
+    assert all("CREATE OR REPLACE VIEW" in sql for sql in executed_sql)
+    assert any("v_engagement_trend" in sql and "LAG(" in sql for sql in executed_sql)
+    assert any("v_tier_by_plan" in sql and "JOIN" in sql for sql in executed_sql)
+    assert any("v_at_risk_current" in sql and "WITH final_week" in sql for sql in executed_sql)
+    assert query_job.result.call_count == 3
