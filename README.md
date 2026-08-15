@@ -39,11 +39,42 @@ Notebooks 02 and 03 read only the generated CSVs — never the simulator or scor
 
 Tests: `pytest -v`.
 
+## Data Refresh
+
+Alongside the synthetic simulator, this repo also pulls three **real-world weekly
+signals** about the LA Rams — SeatGeek home-game ticket prices, Google search
+interest, and Wikipedia pageviews — and appends them to
+[`data_sources/processed/weekly_data.csv`](data_sources/processed/weekly_data.csv).
+This is a separate, standalone dataset; it isn't wired into the engagement score or
+churn view, which stay fully synthetic and reproducible on purpose (see
+[`docs/DECISION_LOG.md`](docs/DECISION_LOG.md)).
+
+A [GitHub Actions workflow](.github/workflows/weekly-data-pull.yml) runs this
+automatically every **Monday at 9am UTC**, and commits the updated CSV straight back
+to the repo. The pipeline is **idempotent**: it checks which sources already have a
+row for the current week before pulling anything, so triggering it again mid-week
+never creates duplicate rows — it just skips whatever's already there.
+
+To trigger a pull manually: open the **Actions** tab → **Weekly Data Pull** →
+**Run workflow**.
+
+One note on reliability: Google Trends is pulled via `pytrends`, an unofficial,
+unauthenticated wrapper around Google's own interest data — there's no supported API
+for it. It's retried a few times with backoff if it gets rate-limited, but it can
+still occasionally fail or skip a week. That's expected behavior for a free,
+unofficial data source, not a bug — the other two sources (SeatGeek, Wikipedia) are
+unaffected when it happens, and the pull simply resumes the following week.
+
 ## Repo layout
 
 - `season_simulator/` — synthetic STM population (`fans.py`) and weekly behavior events (`events.py`), including the scripted decline for the planted churn cohort
 - `scoring/` — pure-function modeling core: `engagement.py` (rolling score + tier), `churn.py` (the at-risk rule), `validation.py` (precision/recall against ground truth)
 - `scripts/run_season.py` — wires the simulator and scoring together and writes the weekly CSV output
+- `data_sources/` — weekly real-world data pipeline: `pull_seatgeek.py`,
+  `pull_google_trends.py`, `pull_wikipedia_pageviews.py`, `common.py` (shared
+  normalization/retry helpers), `pull_all_sources.py` (the orchestrator run weekly by
+  [`.github/workflows/weekly-data-pull.yml`](.github/workflows/weekly-data-pull.yml)) —
+  see the "Data Refresh" section above
 - `notebooks/` — the three analysis notebooks described above
 - `tests/` — pytest suite covering the simulator, scoring, and runner
 - `data/weekly_snapshots/` — generated weekly output (**gitignored**; created by `scripts/run_season.py`)
