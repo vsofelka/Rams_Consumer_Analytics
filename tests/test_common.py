@@ -20,7 +20,7 @@ def test_current_week_start_date_defaults_to_today(monkeypatch):
         def today(cls):
             return fixed_today
 
-    monkeypatch.setattr(datetime, "date", _FixedDate)
+    monkeypatch.setattr("data_sources.common.date", _FixedDate)
 
     result = current_week_start_date()
     assert result == datetime.date(2026, 8, 10)
