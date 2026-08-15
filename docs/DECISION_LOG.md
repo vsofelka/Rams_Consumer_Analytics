@@ -118,26 +118,26 @@ Initial rough ranking: engagement score > churn > upsell propensity.
 
 ---
 
-## 2026-08-15 — Power BI replaces the planned Streamlit dashboard
+## 2026-08-15 â€” Power BI replaces the planned Streamlit dashboard
 
 **Decision:** The Phase B dashboard (see the 2026-08-12 entry above) will be built in Power BI instead of Streamlit.
 
-**Why:** The job posting names Power BI explicitly, twice — once for building dashboards/reports/visualizations, once under reporting-software experience. Streamlit is not mentioned anywhere in the posting. This is the same direct-JD-language mapping that drove the original engagement-score/churn-view use-case decision.
+**Why:** The job posting names Power BI explicitly, twice â€” once for building dashboards/reports/visualizations, once under reporting-software experience. Streamlit is not mentioned anywhere in the posting. This is the same direct-JD-language mapping that drove the original engagement-score/churn-view use-case decision.
 
 **Reference:** [`docs/superpowers/specs/2026-08-15-powerbi-bigquery-design.md`](superpowers/specs/2026-08-15-powerbi-bigquery-design.md).
 
 ---
 
-## 2026-08-15 — BigQuery chosen as the warehouse layer under Power BI
+## 2026-08-15 â€” BigQuery chosen as the warehouse layer under Power BI
 
-**Decision:** Add a BigQuery warehouse layer beneath the Power BI report, loaded from the existing SQLite data — BigQuery over Snowflake.
+**Decision:** Add a BigQuery warehouse layer beneath the Power BI report, loaded from the existing SQLite data â€” BigQuery over Snowflake.
 
-**Why:** A flat-file-fed Power BI report wouldn't put any SQL on screen. BigQuery's sandbox tier is free indefinitely with no credit card and no billing account, versus Snowflake's 30-day trial credit, which would eventually expire or require billing — a real risk for a portfolio project meant to still work months later. BigQuery also has a native Power BI connector (no ODBC driver to install) and pairs naturally with the job posting's mention of Looker Studio, a Google product.
+**Why:** A flat-file-fed Power BI report wouldn't put any SQL on screen. BigQuery's sandbox tier is free indefinitely with no credit card and no billing account, versus Snowflake's 30-day trial credit, which would eventually expire or require billing â€” a real risk for a portfolio project meant to still work months later. BigQuery also has a native Power BI connector (no ODBC driver to install) and pairs naturally with the job posting's mention of Looker Studio, a Google product.
 
 ---
 
-## 2026-08-15 — Views carry the SQL story, DAX carries the interactive story
+## 2026-08-15 â€” Views carry the SQL story, DAX carries the interactive story
 
 **Decision:** Row-level shaping (a window-function trend query, a join+aggregation query, a CTE-based at-risk reconstruction) lives as BigQuery views, ported directly from `notebooks/04_sql_analysis.ipynb`. Live, filter-context-sensitive metrics (precision/recall/F1 recomputed under whatever week is selected) live as DAX measures in Power BI.
 
-**Why:** SQL views are static once created — they can't respond to a Power BI slicer selection. DAX measures can, via `CALCULATE`'s automatic filter-context propagation. Splitting the work this way means each tool does the job it's actually suited for, and both are demonstrable on their own terms — real SQL sitting in the warehouse and real DAX sitting in the model.
+**Why:** SQL views are static once created â€” they can't respond to a Power BI slicer selection. DAX measures can, via `CALCULATE`'s automatic filter-context propagation. Splitting the work this way means each tool does the job it's actually suited for, and both are demonstrable on their own terms â€” real SQL sitting in the warehouse and real DAX sitting in the model.
