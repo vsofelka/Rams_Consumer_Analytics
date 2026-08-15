@@ -1,9 +1,11 @@
 import sqlite3
+from unittest.mock import MagicMock
 
 import pandas as pd
+from google.cloud import bigquery
 
 from storage.db import create_schema, write_fans, write_weekly_snapshot
-from scripts.load_to_bigquery import read_fans, read_weekly_snapshots
+from scripts.load_to_bigquery import read_fans, read_weekly_snapshots, ensure_dataset, load_dataframe
 
 
 def _fans_fixture():
@@ -53,3 +55,32 @@ def test_read_weekly_snapshots_casts_at_risk_to_bool(tmp_path):
     assert snapshots["at_risk"].dtype == bool
     assert list(snapshots["at_risk"]) == [True, False]
     assert len(snapshots) == 2
+
+
+def test_ensure_dataset_creates_dataset_with_exists_ok():
+    client = MagicMock()
+
+    ensure_dataset(client, "rams-fan-analytics", "rams_fan_analytics", location="US")
+
+    client.create_dataset.assert_called_once()
+    args, kwargs = client.create_dataset.call_args
+    dataset_arg = args[0]
+    assert isinstance(dataset_arg, bigquery.Dataset)
+    assert dataset_arg.dataset_id == "rams_fan_analytics"
+    assert dataset_arg.location == "US"
+    assert kwargs["exists_ok"] is True
+
+
+def test_load_dataframe_truncates_and_waits_for_job():
+    client = MagicMock()
+    job = MagicMock()
+    client.load_table_from_dataframe.return_value = job
+    df = pd.DataFrame({"fan_id": [1, 2]})
+
+    load_dataframe(client, "rams-fan-analytics", "rams_fan_analytics", "fans", df)
+
+    args, kwargs = client.load_table_from_dataframe.call_args
+    assert args[0] is df
+    assert args[1] == "rams-fan-analytics.rams_fan_analytics.fans"
+    assert kwargs["job_config"].write_disposition == bigquery.WriteDisposition.WRITE_TRUNCATE
+    job.result.assert_called_once()
