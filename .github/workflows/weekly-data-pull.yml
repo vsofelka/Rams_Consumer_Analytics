@@ -1,0 +1,53 @@
+# Pulls this week's real-world Rams signals (SeatGeek ticket prices, Google Trends
+# search interest, Wikipedia pageviews) and commits the updated
+# data_sources/processed/weekly_data.csv back to the repo. Runs automatically every
+# Monday morning, or on demand via the Actions tab ("Run workflow"). Safe to re-run
+# mid-week — pull_all_sources.py skips any source already pulled for the current
+# week, so this never duplicates a row.
+name: Weekly Data Pull
+
+on:
+  schedule:
+    - cron: "0 9 * * 1"  # Every Monday at 09:00 UTC
+  workflow_dispatch: {}
+
+# Prevent two concurrent runs (e.g. a manual trigger overlapping the schedule) from
+# racing to commit and push at the same time.
+concurrency:
+  group: weekly-data-pull
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  pull-and-commit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run weekly data pull
+        env:
+          SEATGEEK_CLIENT_ID: ${{ secrets.SEATGEEK_CLIENT_ID }}
+        run: python data_sources/pull_all_sources.py
+
+      - name: Commit and push updated data, if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if git diff --quiet -- data_sources/processed/weekly_data.csv; then
+            echo "No changes to weekly_data.csv — nothing to commit."
+          else
+            git add data_sources/processed/weekly_data.csv
+            git commit -m "Automated weekly data pull: $(date -u +'%Y-%m-%d')"
+            git push
+          fi
