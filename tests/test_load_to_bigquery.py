@@ -5,7 +5,7 @@ import pandas as pd
 from google.cloud import bigquery
 
 from storage.db import create_schema, write_fans, write_weekly_snapshot
-from scripts.load_to_bigquery import read_fans, read_weekly_snapshots, ensure_dataset, load_dataframe, create_views
+from scripts.load_to_bigquery import read_fans, read_weekly_snapshots, ensure_dataset, load_dataframe, create_views, load_to_bigquery
 
 
 def _fans_fixture():
@@ -100,3 +100,23 @@ def test_create_views_runs_three_create_or_replace_statements():
     assert any("v_tier_by_plan" in sql and "JOIN" in sql for sql in executed_sql)
     assert any("v_at_risk_current" in sql and "WITH final_week" in sql for sql in executed_sql)
     assert query_job.result.call_count == 3
+
+
+def test_load_to_bigquery_orchestrates_full_load(tmp_path):
+    db_path = str(tmp_path / "test.db")
+    conn = sqlite3.connect(db_path)
+    create_schema(conn)
+    write_fans(conn, _fans_fixture())
+    write_weekly_snapshot(conn, _weekly_snapshots_fixture())
+    conn.close()
+
+    client = MagicMock()
+    client.load_table_from_dataframe.return_value = MagicMock()
+    client.query.return_value = MagicMock()
+
+    result = load_to_bigquery(db_path, "rams-fan-analytics", "rams_fan_analytics", client=client)
+
+    assert result == {"fans_rows": 2, "weekly_snapshots_rows": 2}
+    client.create_dataset.assert_called_once()
+    assert client.load_table_from_dataframe.call_count == 2
+    assert client.query.call_count == 3

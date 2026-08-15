@@ -77,3 +77,32 @@ ORDER BY w.engagement_score ASC
 def create_views(client, project_id, dataset_id):
     for sql in _view_queries(project_id, dataset_id).values():
         client.query(sql).result()
+
+
+def load_to_bigquery(db_path, project_id, dataset_id, client=None):
+    if client is None:
+        client = bigquery.Client(project=project_id)
+
+    ensure_dataset(client, project_id, dataset_id)
+
+    fans = read_fans(db_path)
+    load_dataframe(client, project_id, dataset_id, "fans", fans)
+
+    weekly_snapshots = read_weekly_snapshots(db_path)
+    load_dataframe(client, project_id, dataset_id, "weekly_snapshots", weekly_snapshots)
+
+    create_views(client, project_id, dataset_id)
+
+    return {"fans_rows": len(fans), "weekly_snapshots_rows": len(weekly_snapshots)}
+
+
+if __name__ == "__main__":
+    summary = load_to_bigquery(
+        db_path="data/fan_analytics.db",
+        project_id="rams-fan-analytics",
+        dataset_id="rams_fan_analytics",
+    )
+    print(
+        f"Loaded {summary['fans_rows']} fans and "
+        f"{summary['weekly_snapshots_rows']} weekly snapshot rows into BigQuery."
+    )
