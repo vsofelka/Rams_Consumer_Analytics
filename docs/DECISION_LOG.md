@@ -115,3 +115,38 @@ Initial rough ranking: engagement score > churn > upsell propensity.
 **Decision:** Add `scoring/stats.py` with three specific techniques rather than one default test reused everywhere: a Mann-Whitney U test (planted-churn cohort vs. everyone else's engagement score), a Wilson score confidence interval (around the churn rule's precision/recall), and a hypergeometric test (probability of the observed true-positive count arising by chance).
 
 **Why:** Each was picked to match the actual data-generating process rather than reached for by default — Mann-Whitney over a t-test because `engagement_score` is a percentile rank, not normally distributed; Wilson over a naive normal-approximation CI because the counts involved (13 flagged, 25 planted) are small and close to the boundary; hypergeometric over binomial because fans are drawn without replacement from a finite population of 300. Using three distinct techniques, each justified on its own terms, is the concrete demonstration of interpreting different types of statistical models/testing, not just running one by default.
+
+---
+
+## 2026-08-15 — Real-world weekly data pipeline added, kept separate from the simulator
+
+**Decision:** Add a standalone weekly pipeline (`data_sources/`) that pulls three real
+signals — SeatGeek ticket prices, Google Trends search interest, and Wikipedia
+pageviews, all for the LA Rams — into `data_sources/processed/weekly_data.csv`, on an
+automated weekly cadence via GitHub Actions. This data is not wired into
+`season_simulator/`, `scoring/`, or `storage/db.py`.
+
+**Why:** The engagement-score/churn pipeline's validation depends entirely on the
+planted-churn cohort's known ground truth (see the 2026-08-12 entry) — mixing in real
+external data there would blur that. This is instead a second, independent real-data
+asset: a chance to demonstrate an actual data-collection pipeline (scheduled jobs,
+external API integration, idempotent re-runs) without touching the part of the project
+whose validity depends on staying synthetic.
+
+**Reference:** [`docs/superpowers/specs/2026-08-15-weekly-data-scraping-design.md`](superpowers/specs/2026-08-15-weekly-data-scraping-design.md).
+
+---
+
+## 2026-08-15 — weekly_data.csv is committed to git, not gitignored
+
+**Decision:** Unlike `data/weekly_snapshots/` and `data/fan_analytics.db`,
+`data_sources/processed/weekly_data.csv` is tracked in git and pushed back to the repo
+by the GitHub Actions workflow that generates it.
+
+**Why:** GitHub Actions runners are ephemeral — each scheduled run starts from a fresh
+checkout with no memory of prior runs. The idempotency check ("has this source already
+been pulled this week?") reads the committed CSV to know what's already there; if the
+file weren't committed, that check would be unanswerable and every run would start
+from zero. Committing the CSV back *is* the pipeline's state store — there's no
+database or artifact cache doing that job instead. It's also a genuinely accumulating
+real-world dataset, unlike the fully-reproducible synthetic simulator output.
