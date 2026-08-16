@@ -41,6 +41,7 @@ jobs:
         run: python data_sources/pull_all_sources.py
 
       - name: Commit and push updated data, if changed
+        if: always()
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
