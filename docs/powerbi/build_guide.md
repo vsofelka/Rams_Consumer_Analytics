@@ -14,20 +14,21 @@ Prerequisite: `python scripts/load_to_bigquery.py` has been run successfully —
 1. Switch to the **Model** view (left rail, three-boxes icon).
 2. Drag `fans[fan_id]` onto `weekly_snapshots[fan_id]` to create a relationship.
 3. In the relationship dialog, confirm: cardinality **One to many** (fans is the "one" side), cross-filter direction **Single**, and the relationship is **active**.
-4. Leave `v_engagement_trend`, `v_tier_by_plan`, and `v_at_risk_current` unrelated to anything — they're pre-shaped for specific visuals, not part of the star schema.
+4. Drag `fans[fan_id]` onto `v_engagement_trend[fan_id]` to create a second relationship. In the relationship dialog, confirm: cardinality **One to many** (fans is the "one" side), cross-filter direction **Single**, and the relationship is **active** — this is required for Page 3's drill-through to filter the trend chart by the selected fan.
+5. Leave `v_tier_by_plan` and `v_at_risk_current` unrelated to anything — they're pre-shaped for specific visuals, not part of the star schema.
 
 ## 3. Add the DAX measures
 
 1. In the **Data** view, right-click `weekly_snapshots` in the field list → **New measure**.
-2. Paste in each measure from `docs/powerbi/dax_measures.md` one at a time (9 total), pressing Enter after each to commit it before starting the next.
+2. Paste in each measure from `docs/powerbi/dax_measures.md` one at a time (11 total), pressing Enter after each to commit it before starting the next.
 
 ## 4. Page 1 — Season Trend
 
 This page ignores the week slicer (added on Page 2) entirely — every visual here should show all 18 weeks at once.
 
 1. Add a **Line chart**. X-axis: `weekly_snapshots[week]`. Values: `[Precision]`, `[Recall]`, `[F1 Score]` (all three, as separate lines).
-2. Add a **Stacked area chart** below it. X-axis: `v_tier_by_plan[week]`. Y-axis: `v_tier_by_plan[n_fans]`. Legend: `v_tier_by_plan[plan_tier]`.
-3. Add four **Card** visuals along the top for `[At-Risk Count]`, `[Precision]`, `[Recall]`, `[F1 Score]` — these will show whatever the *total* (unfiltered by week) values resolve to, which is fine as a page-level headline.
+2. Add a **Line chart** below it. X-axis: `v_tier_by_plan[week]`. Y-axis: `v_tier_by_plan[avg_engagement_score]`. Legend: `v_tier_by_plan[plan_tier]`. (Not `n_fans` — every fan has exactly one row per week, so the per-tier counts are constant across the season and would render as flat, unchanging bands. `avg_engagement_score` is the column that actually varies week to week. A stacked area chart isn't the right fit here either, since stacking an average across categories isn't meaningful — averages don't sum — hence a line chart with `plan_tier` as the legend.)
+3. Add four **Card** visuals along the top for `[At-Risk Count]`, `[Precision]`, `[Recall]`, `[F1 Score]` — these will show whatever the *total* (unfiltered by week) values resolve to, which is fine as a page-level headline. Note: these are season-wide totals across all 18 weeks (5,400 fan-weeks), not the week-18 snapshot reported in `docs/RESULTS.md` — they will not match that document's headline numbers, and that's expected; use Page 2's week slicer to see a single-week view comparable to `RESULTS.md`.
 
 ## 5. Page 2 — Weekly Snapshot
 
