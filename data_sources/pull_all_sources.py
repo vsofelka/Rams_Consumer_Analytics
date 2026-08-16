@@ -1,6 +1,16 @@
 import os
+import sys
+from datetime import timedelta
 
 import pandas as pd
+
+# Running this file directly (`python data_sources/pull_all_sources.py`, as the
+# weekly-data-pull workflow does) puts data_sources/ on sys.path rather than the
+# repo root, so the `data_sources.*` imports below would not be importable.
+# Importing it as a module (pytest) is unaffected.
+_REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if _REPO_ROOT not in sys.path:
+    sys.path.insert(0, _REPO_ROOT)
 
 from data_sources.common import current_week_start_date
 from data_sources.pull_google_trends import pull_google_trends
@@ -11,7 +21,12 @@ from data_sources.pull_wikipedia_pageviews import pull_wikipedia_pageviews
 def already_pulled_sources(csv_path, week_start_date):
     if not os.path.exists(csv_path):
         return set()
-    existing = pd.read_csv(csv_path)
+    try:
+        existing = pd.read_csv(csv_path)
+    except Exception:
+        # A malformed CSV (e.g. from a prior run that crashed mid-write) shouldn't
+        # block any source from being pulled — treat it as "nothing pulled yet".
+        return set()
     week_str = week_start_date.isoformat()
     return set(existing.loc[existing["week_start_date"] == week_str, "source"].unique())
 
@@ -37,7 +52,12 @@ def pull_all_sources(
     wiki_session=None,
 ):
     if week_start_date is None:
-        week_start_date = current_week_start_date()
+        # Default to the most recently completed week, not the in-progress current
+        # week: pull_wikipedia_pageviews requests [week_start, week_start + 6 days],
+        # and Wikimedia's REST API 404s on future/incomplete days when the current
+        # ISO week's Monday is used. current_week_start_date() itself is unchanged
+        # and still returns the Monday of a given date's ISO week.
+        week_start_date = current_week_start_date() - timedelta(weeks=1)
 
     already_pulled = already_pulled_sources(csv_path, week_start_date)
     summary = {"pulled": [], "skipped": [], "failed": []}
@@ -70,3 +90,5 @@ if __name__ == "__main__":
     result = pull_all_sources()
     print(f"Weekly data pull summary — pulled: {result['pulled']}, "
           f"skipped: {result['skipped']}, failed: {result['failed']}")
+    if result["failed"]:
+        sys.exit(1)

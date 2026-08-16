@@ -19,7 +19,7 @@ def normalize_metrics(week_start_date, source, metrics):
             "week_start_date": week_start_date.isoformat(),
             "source": source,
             "metric_name": metric_name,
-            "value": value,
+            "value": float(value),
         }
         for metric_name, value in sorted(metrics.items())
     ]

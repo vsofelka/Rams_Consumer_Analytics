@@ -26,5 +26,7 @@ def pull_google_trends(week_start_date, pytrends_client=None, sleep_fn=time.slee
         sleep_fn=sleep_fn,
     )
 
-    score = int(df[SEARCH_TERM].iloc[-1])
+    # timeframe="now 7-d" returns hourly rows for the trailing 7 days, so averaging
+    # across all rows yields a weekly figure rather than just the latest hour's.
+    score = int(df[SEARCH_TERM].mean())
     return normalize_metrics(week_start_date, "google_trends", {"search_interest_score": score})

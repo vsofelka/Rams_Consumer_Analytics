@@ -30,9 +30,12 @@ def pull_seatgeek(week_start_date, client_id=None, session=None):
     if not events:
         return []
 
-    lowest_prices = [e["stats"]["lowest_price"] for e in events if e["stats"].get("lowest_price") is not None]
-    average_prices = [e["stats"]["average_price"] for e in events if e["stats"].get("average_price") is not None]
-    listing_counts = [e["stats"].get("listing_count", 0) for e in events]
+    # Truthy checks (not `is not None`) deliberately exclude both a missing value
+    # and SeatGeek's `0` sentinel, which means "no pricing data available" on some
+    # events, not "$0 tickets" — a literal 0 would otherwise drag the min/avg down.
+    lowest_prices = [e.get("stats", {})["lowest_price"] for e in events if e.get("stats", {}).get("lowest_price")]
+    average_prices = [e.get("stats", {})["average_price"] for e in events if e.get("stats", {}).get("average_price")]
+    listing_counts = [e.get("stats", {}).get("listing_count", 0) for e in events]
 
     metrics = {
         "min_ticket_price": min(lowest_prices) if lowest_prices else 0,
