@@ -27,6 +27,18 @@ def test_already_pulled_sources_returns_sources_present_for_that_week(tmp_path):
     assert result == {"seatgeek"}
 
 
+def test_already_pulled_sources_returns_empty_set_when_csv_is_malformed(tmp_path):
+    csv_path = str(tmp_path / "weekly_data.csv")
+    # Simulate a prior run that crashed mid-write, leaving truncated/garbage bytes
+    # instead of valid CSV content.
+    with open(csv_path, "wb") as f:
+        f.write(b"\x00\x01not,a,valid\ncsv\x02\x03\xff\xfe")
+
+    result = already_pulled_sources(csv_path, datetime.date(2026, 8, 10))
+
+    assert result == set()
+
+
 def test_append_rows_creates_csv_with_header_when_missing(tmp_path):
     csv_path = str(tmp_path / "weekly_data.csv")
 
