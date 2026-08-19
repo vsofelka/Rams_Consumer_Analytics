@@ -141,3 +141,11 @@ Initial rough ranking: engagement score > churn > upsell propensity.
 **Decision:** Row-level shaping (a window-function trend query, a join+aggregation query, a CTE-based at-risk reconstruction) lives as BigQuery views, ported directly from `notebooks/04_sql_analysis.ipynb`. Live, filter-context-sensitive metrics (precision/recall/F1 recomputed under whatever week is selected) live as DAX measures in Power BI.
 
 **Why:** SQL views are static once created — they can't respond to a Power BI slicer selection. DAX measures can, via `CALCULATE`'s automatic filter-context propagation. Splitting the work this way means each tool does the job it's actually suited for, and both are demonstrable on their own terms — real SQL sitting in the warehouse and real DAX sitting in the model.
+
+---
+
+## 2026-08-19 — README and RESULTS.md reframed around "degree of fandom" / "shifts in fandom"
+
+**Decision:** Describe the engagement score explicitly as a fan's "degree of fandom" and the churn view explicitly as detecting "shifts" in that fandom, in `README.md` and `docs/RESULTS.md`. No underlying model, rule, or number changed — this is a language pass only.
+
+**Why:** The job posting names "degrees and shifts of fandom" as a specific deliverable the team wants (`docs/job_description.md`). The existing tier system (Super Fan/Engaged/Cooling/Dormant, computed weekly on a rolling basis) and the trend-based churn rule already *are* exactly that — the project just wasn't describing itself in those terms. Same direct-JD-language mapping as the Power BI and BigQuery decisions above, applied to prose instead of tooling.
