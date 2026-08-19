@@ -49,10 +49,14 @@ DIVIDE(TP, TP + FP)
 ```
 Recall = 
 VAR TP = [True Positives]
-VAR FN = [False Negatives]
+VAR FalseNeg = [False Negatives]
 RETURN
-DIVIDE(TP, TP + FN)
+DIVIDE(TP, TP + FalseNeg)
 ```
+Note: name this variable something other than `FN` — in testing, Power BI Desktop's
+DAX editor threw a persistent "The syntax for 'FN' is incorrect" error on that exact
+two-letter name (while `TP`/`FP` in the other measures were unaffected), even after
+retyping the formula from scratch. Renaming the variable resolved it immediately.
 
 ```
 F1 Score = 

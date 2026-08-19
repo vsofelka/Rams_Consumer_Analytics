@@ -39,10 +39,11 @@ This page ignores the week slicer (added on Page 2) entirely — every visual he
 ## 6. Page 3 — Fan Drill-Through
 
 1. Create a new page named exactly `Fan Drill-Through`.
-2. In the Visualizations pane, drag `fans[fan_id]` into the **Drill through** field well at the bottom — this makes the page a drill-through target.
-3. Add a **Line chart** on this page: X-axis `v_engagement_trend[week]`, Values `v_engagement_trend[engagement_score]`. Add a second line for `v_engagement_trend[score_delta]` if you want the week-over-week delta visible too (put it on a second value well, not a second Y-axis — Power BI will ask if you want a secondary axis; decline it and use two separate small multiples or a tooltip instead, since a dual-axis chart makes the two series' shapes hard to compare fairly).
-4. Add a **Card** for `fans[is_planted_churn]` so the ground-truth flag is visible on the drill-through page.
-5. Back on Page 2, right-click a `fan_id` value in the at-risk table → **Drill through** → **Fan Drill-Through** to test it.
+2. Add a **Line chart** on this page: X-axis `v_engagement_trend[week]`, Values `v_engagement_trend[engagement_score]`. Add a second line for `v_engagement_trend[score_delta]` if you want the week-over-week delta visible too (put it on a second value well, not a second Y-axis — Power BI will ask if you want a secondary axis; decline it and use two separate small multiples or a tooltip instead, since a dual-axis chart makes the two series' shapes hard to compare fairly).
+3. Add a **Card** for `fans[is_planted_churn]` so the ground-truth flag is visible alongside whichever fan is selected.
+4. Add a **Slicer** visual bound to `fans[fan_id]`. Set it to single-select (Format pane → Selection → Single select: On), same as Page 2's week slicer. Selecting a fan here filters both the line chart and the card to that one fan — this relies on the `fans` → `v_engagement_trend` relationship set up in step 2.4 above.
+
+**Process note:** this page originally used Power BI's native drill-through feature (right-click a fan in Page 2's at-risk table → Drill through → this page) instead of a slicer. That was attempted first, but the Drill through option never appeared in the right-click menu, despite trying every configuration available: a direct relationship between `fans` and the table the field was clicked from, both "Used as category" and "Summarized" trigger settings on the page's Drill through field well, and both Table and Matrix visual types for the source field. The slicer above is a reliable, functionally equivalent substitute — pick a fan manually instead of right-clicking one — and doesn't depend on whatever wasn't working with drill-through in that environment.
 
 ## 7. Save
 

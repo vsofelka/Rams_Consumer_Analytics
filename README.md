@@ -47,13 +47,26 @@ Tests: `pytest -v`.
 - `notebooks/` — the three analysis notebooks described above
 - `tests/` — pytest suite covering the simulator, scoring, and runner
 - `data/weekly_snapshots/` — generated weekly output (**gitignored**; created by `scripts/run_season.py`)
+- `scripts/load_to_bigquery.py` — loads the validated fans/weekly_snapshots data into BigQuery, plus the analytical views the dashboard reads from
+- `powerbi/Fan_Engagement_Dashboard.pbix` — the Power BI report described above
 - `docs/`
   - [`docs/RESULTS.md`](docs/RESULTS.md) — full validated results, week-by-week metrics, and limitations
   - [`docs/DECISION_LOG.md`](docs/DECISION_LOG.md) — chronological record of key decisions and why they were made
+  - [`docs/powerbi/`](docs/powerbi/) — Power BI build guide and DAX measures reference
   - [`docs/superpowers/specs/`](docs/superpowers/specs/) — technical design docs
   - [`docs/job_description.md`](docs/job_description.md) — the job posting this project is built against
 - [`PROJECT_CONTEXT.md`](PROJECT_CONTEXT.md) — full project background and open questions
 
 ## Scope
 
-This is an MVP pass, and it's scoped honestly: a rule-based churn view rather than a trained classifier, a synthetic season rather than real data, and notebooks as the only deliverable — no dashboard yet. See [`docs/DECISION_LOG.md`](docs/DECISION_LOG.md) for the reasoning behind each of those trade-offs, and [`docs/RESULTS.md`](docs/RESULTS.md) for what the numbers do and don't support.
+This is an MVP pass, and it's scoped honestly: a rule-based churn view rather than a trained classifier, and a synthetic season rather than real data. See [`docs/DECISION_LOG.md`](docs/DECISION_LOG.md) for the reasoning behind each of those trade-offs, and [`docs/RESULTS.md`](docs/RESULTS.md) for what the numbers do and don't support.
+
+## Dashboard
+
+The same validated data also drives a three-page **Power BI** report — [`powerbi/Fan_Engagement_Dashboard.pbix`](powerbi/Fan_Engagement_Dashboard.pbix) — built on top of the BigQuery tables and views loaded by [`scripts/load_to_bigquery.py`](scripts/load_to_bigquery.py):
+
+1. **Season Trend** — precision/recall/F1 across all 18 weeks, average engagement score by plan tier, and season-wide headline metrics.
+2. **Weekly Snapshot** — a week slicer driving live tier counts and the current at-risk fan list.
+3. **Fan Drill-Through** — pick an individual fan and see their engagement trend alongside their ground-truth planted-churn flag.
+
+See [`docs/powerbi/build_guide.md`](docs/powerbi/build_guide.md) for how it was built (including the DAX measures reference and a couple of real Power BI Desktop quirks worth knowing about) and [`docs/powerbi/dax_measures.md`](docs/powerbi/dax_measures.md) for the measures themselves.
