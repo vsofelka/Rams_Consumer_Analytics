@@ -4,7 +4,7 @@ A project built for an application to the Los Angeles Rams' **Intern, Marketing 
 
 ## What this is
 
-A working, end-to-end pipeline that models a Season Ticket Member's (STM's) **degree of fandom** on a rolling basis — a 0–100 engagement score blending attendance, digital activity, and purchase behavior over a trailing, recency-weighted window — and classifies each fan into one of four fandom tiers: **Super Fan, Engaged, Cooling, Dormant**. A second view derives **churn risk** directly from *shifts* in that score's trajectory, rather than from a separately trained model: a fan is flagged "at risk" when their score has fallen for several consecutive weeks *and* sits below a population percentile threshold — a sustained shift away from their prior degree of fandom, not one bad week. A third view attaches an estimated dollar value to that same trajectory — see [`docs/RESULTS.md`](docs/RESULTS.md) for the numbers and an explicit note on what is and isn't validated about them.
+A working, end-to-end pipeline that models a Season Ticket Member's (STM's) **degree of fandom** on a rolling basis — a 0–100 engagement score blending attendance, digital activity, and purchase behavior over a trailing, recency-weighted window — and classifies each fan into one of four fandom tiers: **Super Fan, Engaged, Cooling, Dormant**. A second view derives **churn risk** directly from *shifts* in that score's trajectory, rather than from a separately trained model: a fan is flagged "at risk" when their score has fallen for several consecutive weeks *and* sits below a population percentile threshold — a sustained shift away from their prior degree of fandom, not one bad week. A third lens attaches an estimated dollar value to that same trajectory — see [`docs/RESULTS.md`](docs/RESULTS.md) for the numbers and an explicit note on what is and isn't validated about them.
 
 The whole thing is deliberately built to run **in-season**: the simulator advances one week at a time, and each week's score and churn flag are computed only from the history available up to that week — never from the full season at once. That mirrors how it would actually be used against live data.
 
@@ -42,7 +42,7 @@ Tests: `pytest -v`.
 ## Repo layout
 
 - `season_simulator/` — synthetic STM population (`fans.py`) and weekly behavior events (`events.py`), including the scripted decline for the planted churn cohort
-- `scoring/` — pure-function modeling core: `engagement.py` (rolling score + tier), `churn.py` (the at-risk rule), `validation.py` (precision/recall against ground truth)
+- `scoring/` — pure-function modeling core: `engagement.py` (rolling score + tier), `churn.py` (the at-risk rule), `clv.py` (CLV estimate), `validation.py` (precision/recall against ground truth)
 - `scripts/run_season.py` — wires the simulator and scoring together and writes the weekly CSV output
 - `notebooks/` — the three analysis notebooks described above
 - `tests/` — pytest suite covering the simulator, scoring, and runner

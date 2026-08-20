@@ -60,7 +60,15 @@ These three tests were each chosen to fit the shape of the actual data — a ran
 
 ## Estimated fan value
 
-Alongside the churn signal, every fan's weekly snapshot also carries an estimated **Customer Lifetime Value (CLV)** — a dollar figure derived from their plan tier, current fandom tier, and at-risk status (see `scoring/clv.py` and `docs/DECISION_LOG.md` for the formula). By week 18:
+Alongside the churn signal, every fan's weekly snapshot also carries an estimated **Customer Lifetime Value (CLV)** — a dollar figure derived from their plan tier, current fandom tier, and at-risk status (see `scoring/clv.py` and `docs/superpowers/specs/2026-08-19-clv-design.md` for the formula).
+
+CLV is recalculated fresh every week from that week's fandom tier and at-risk status — it
+is a snapshot, not something accumulated over time. The figures below are therefore
+week-18 totals, matching the grain of every other number in this document, not a sum
+across all 18 weeks (summing a per-week snapshot across weeks would count each fan's
+value 18 times over).
+
+By week 18:
 
 - **Total estimated portfolio value:** ~$5.33M across all 300 fans (average ~$17,765 per fan).
 - **At-risk portfolio value:** the 13 fans flagged at risk carry an estimated $18,000 in combined CLV (average ~$1,385 per at-risk fan) — a small slice of the total.
@@ -78,6 +86,7 @@ What it does **not** prove: this is a rule validated against **synthetic, plante
 ## Where to look for more
 
 - Design doc: [`docs/superpowers/specs/2026-08-10-fan-engagement-churn-design.md`](superpowers/specs/2026-08-10-fan-engagement-churn-design.md)
+- CLV design: [`docs/superpowers/specs/2026-08-19-clv-design.md`](superpowers/specs/2026-08-19-clv-design.md)
 - Decision log: [`docs/DECISION_LOG.md`](DECISION_LOG.md)
 - Notebooks: [`notebooks/01_generate_season.ipynb`](../notebooks/01_generate_season.ipynb) (simulator run), [`notebooks/02_engagement_model.ipynb`](../notebooks/02_engagement_model.ipynb) (engagement score), [`notebooks/03_churn_view.ipynb`](../notebooks/03_churn_view.ipynb) (churn rule + validation), [`notebooks/04_sql_analysis.ipynb`](../notebooks/04_sql_analysis.ipynb) (SQL analysis + statistical validation)
 
