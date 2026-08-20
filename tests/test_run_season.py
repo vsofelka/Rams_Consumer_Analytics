@@ -17,7 +17,7 @@ def test_run_season_produces_weekly_snapshot_files(tmp_path):
     assert (output_dir / "fans.csv").exists()
     week_5 = snapshots[5]
     assert len(week_5) == 40
-    expected_columns = {"fan_id", "week", "engagement_score", "tier", "at_risk"}
+    expected_columns = {"fan_id", "week", "engagement_score", "tier", "at_risk", "clv"}
     assert expected_columns.issubset(week_5.columns)
 
 
@@ -100,3 +100,22 @@ def test_run_season_skips_sqlite_when_db_path_omitted(tmp_path):
         seed=56,
     )
     assert len(snapshots) == 2
+
+
+def test_run_season_computes_clv_consistent_with_plan_tier_and_tier(tmp_path):
+    from scoring.clv import estimate_clv
+
+    fans, events_history, score_history, snapshots = run_season(
+        n_fans=20,
+        n_planted_churn=2,
+        decline_start_week=2,
+        n_weeks=3,
+        output_dir=str(tmp_path / "weekly_snapshots"),
+        seed=42,
+    )
+
+    final_week = 3
+    snapshot = snapshots[final_week].merge(fans[["fan_id", "plan_tier"]], on="fan_id")
+    for _, row in snapshot.iterrows():
+        expected = estimate_clv(row["plan_tier"], row["tier"], bool(row["at_risk"]))
+        assert row["clv"] == expected
