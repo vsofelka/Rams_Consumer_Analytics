@@ -19,6 +19,7 @@ CREATE TABLE IF NOT EXISTS weekly_snapshots (
     engagement_score REAL,
     tier TEXT,
     at_risk INTEGER,
+    clv REAL,
     PRIMARY KEY (fan_id, week),
     FOREIGN KEY (fan_id) REFERENCES fans(fan_id)
 )

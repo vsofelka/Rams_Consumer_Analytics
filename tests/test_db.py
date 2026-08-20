@@ -57,3 +57,15 @@ def test_write_weekly_snapshot_appends_across_multiple_weeks():
     result = pd.read_sql("SELECT * FROM weekly_snapshots ORDER BY week", conn)
     assert len(result) == 2
     assert list(result["week"]) == [1, 2]
+
+
+def test_write_weekly_snapshot_round_trips_clv_column():
+    conn = sqlite3.connect(":memory:")
+    create_schema(conn)
+    snapshot = pd.DataFrame({
+        "fan_id": [1], "week": [1], "engagement_score": [55.0], "tier": ["Cooling"],
+        "at_risk": [False], "clv": [4000.0],
+    })
+    write_weekly_snapshot(conn, snapshot)
+    result = pd.read_sql("SELECT * FROM weekly_snapshots", conn)
+    assert result.loc[0, "clv"] == 4000.0
