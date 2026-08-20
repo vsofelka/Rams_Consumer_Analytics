@@ -82,7 +82,7 @@ This is hands-on Power BI Desktop work, done live once the data layer is built a
 ## Documentation
 
 - `docs/DECISION_LOG.md` — new entry: why CLV was added (JD alignment), why it's dynamic and tier-based, and the explicit "this is a placeholder, not a validated model" caveat.
-- `docs/RESULTS.md` — new section reporting the actual CLV numbers produced by a real run (season-wide at-risk CLV total, and the same caveat repeated here since this is the doc most likely to be read in isolation).
+- `docs/RESULTS.md` — new section reporting the actual CLV numbers produced by a real run (week-18 at-risk CLV total (CLV is a per-week snapshot, not something to sum across weeks — see the corresponding plan task for why), and the same caveat repeated here since this is the doc most likely to be read in isolation).
 - `README.md` — one addition to the "What this is" section noting the CLV layer exists and pointing at `docs/RESULTS.md`.
 
 ## Testing
