@@ -58,6 +58,17 @@ The results above are point estimates from a single run. `notebooks/04_sql_analy
 
 These three tests were each chosen to fit the shape of the actual data — a rank-based test for a non-normally-distributed score, an interval method suited to small counts, and an exact test suited to sampling without replacement — rather than one default technique applied everywhere; see `docs/DECISION_LOG.md` for the full reasoning.
 
+## Estimated fan value
+
+Alongside the churn signal, every fan's weekly snapshot also carries an estimated **Customer Lifetime Value (CLV)** — a dollar figure derived from their plan tier, current fandom tier, and at-risk status (see `scoring/clv.py` and `docs/DECISION_LOG.md` for the formula). By week 18:
+
+- **Total estimated portfolio value:** ~$5.33M across all 300 fans (average ~$17,765 per fan).
+- **At-risk portfolio value:** the 13 fans flagged at risk carry an estimated $18,000 in combined CLV (average ~$1,385 per at-risk fan) — a small slice of the total.
+
+That gap is worth calling out rather than glossing over: being flagged at-risk *itself* depresses a fan's CLV estimate, since both a lower fandom tier and the at-risk discount reduce their expected remaining years. A naive reading might expect "at-risk fans" to mean "fans worth worrying about in dollar terms," but the formula's structure actually makes them look like a small fraction of total value by the time they're already flagged — a real limitation of a formula built this way, not a data anomaly.
+
+**Every dollar figure above is a placeholder, not a validated estimate.** The annual-value-per-plan-tier and expected-remaining-years-per-fandom-tier assumptions behind it (`docs/superpowers/specs/2026-08-19-clv-design.md`) are reasonable, round, order-of-magnitude numbers pending real Rams pricing and renewal-rate research — not a fitted or validated model. Unlike the churn rule above, there is no planted ground truth to check CLV against; treat these numbers as a demonstration of the calculation, not a real revenue estimate.
+
 ## What this does and doesn't prove
 
 This validates that the rule-based heuristic is directionally correct — it enriches meaningfully for fans on a known decline path, at roughly **7–8x the precision of random flagging** (quantified against chance in the statistical validation section above), and it reaches 1.00 precision at weeks 12–13. That's a genuine, real result from a real run of the pipeline.
