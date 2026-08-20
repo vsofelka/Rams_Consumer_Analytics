@@ -66,7 +66,7 @@ CREATE OR REPLACE VIEW `{fq}.v_at_risk_current` AS
 WITH final_week AS (
   SELECT MAX(week) AS max_week FROM `{fq}.weekly_snapshots`
 )
-SELECT w.fan_id, w.engagement_score, w.tier
+SELECT w.fan_id, w.engagement_score, w.tier, w.clv
 FROM `{fq}.weekly_snapshots` w, final_week
 WHERE w.week = final_week.max_week AND w.at_risk = TRUE
 ORDER BY w.engagement_score ASC

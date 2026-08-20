@@ -99,6 +99,7 @@ def test_create_views_runs_three_create_or_replace_statements():
     assert any("v_engagement_trend" in sql and "LAG(" in sql for sql in executed_sql)
     assert any("v_tier_by_plan" in sql and "JOIN" in sql for sql in executed_sql)
     assert any("v_at_risk_current" in sql and "WITH final_week" in sql for sql in executed_sql)
+    assert any("v_at_risk_current" in sql and "w.clv" in sql for sql in executed_sql)
     assert query_job.result.call_count == 3
 
 
