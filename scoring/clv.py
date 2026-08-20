@@ -3,15 +3,15 @@
 # Every value here is independently swappable once real figures exist.
 
 ANNUAL_VALUE = {
-    "standard": 2000,
-    "premium": 6000,
-    "club": 15000,
+    "standard": 2000.0,
+    "premium": 6000.0,
+    "club": 15000.0,
 }
 
 EXPECTED_REMAINING_YEARS = {
-    "Super Fan": 8,
-    "Engaged": 5,
-    "Cooling": 2,
+    "Super Fan": 8.0,
+    "Engaged": 5.0,
+    "Cooling": 2.0,
     "Dormant": 0.5,
 }
 

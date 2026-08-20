@@ -26,6 +26,7 @@ def _weekly_snapshots_fixture():
         "engagement_score": [55.0, 80.0],
         "tier": ["Cooling", "Engaged"],
         "at_risk": [True, False],
+        "clv": [4000.0, 30000.0],
     })
 
 
