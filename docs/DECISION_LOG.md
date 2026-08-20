@@ -149,3 +149,29 @@ Initial rough ranking: engagement score > churn > upsell propensity.
 **Decision:** Describe the engagement score explicitly as a fan's "degree of fandom" and the churn view explicitly as detecting "shifts" in that fandom, in `README.md` and `docs/RESULTS.md`. No underlying model, rule, or number changed — this is a language pass only.
 
 **Why:** The job posting names "degrees and shifts of fandom" as a specific deliverable the team wants (`docs/job_description.md`). The existing tier system (Super Fan/Engaged/Cooling/Dormant, computed weekly on a rolling basis) and the trend-based churn rule already *are* exactly that — the project just wasn't describing itself in those terms. Same direct-JD-language mapping as the Power BI and BigQuery decisions above, applied to prose instead of tooling.
+
+---
+
+## 2026-08-19 — Added a dynamic Customer Lifetime Value estimate alongside churn
+
+**Decision:** Add `scoring/clv.py`, computing a per-fan, per-week CLV estimate from
+`plan_tier`, the current engagement tier, and the `at_risk` flag — reusing exactly the same
+data the churn view already produces, with no new simulator or validation methodology. The
+result is one new `clv` column on `weekly_snapshots`, flowing through the same SQLite →
+BigQuery pipes as every other column.
+
+**Why:** The job posting names customer lifetime value explicitly, alongside churn
+(`docs/job_description.md`), and the project previously had no dollar-value story — every
+churn number was a count ("13 fans flagged"), not a business figure. Making CLV dynamic
+(recalculated per week off the current engagement tier, with an additional discount when a
+fan is flagged at-risk) ties it directly to the existing churn signal instead of sitting
+next to it as an unrelated static number.
+
+Unlike the churn rule, CLV has no equivalent ground truth to validate against — there's no
+planted "true lifetime value" to measure precision/recall against the way there is for
+churn. Every dollar figure and retention-years assumption here (`docs/superpowers/specs/2026-08-19-clv-design.md`)
+is a clearly labeled placeholder pending real Rams pricing and renewal-rate data, not a
+fitted or validated model. This is a deliberate honesty choice: the docs say so directly
+rather than implying a rigor the estimate doesn't have.
+
+**Reference:** [`docs/superpowers/specs/2026-08-19-clv-design.md`](superpowers/specs/2026-08-19-clv-design.md).
