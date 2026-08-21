@@ -150,3 +150,42 @@ file weren't committed, that check would be unanswerable and every run would sta
 from zero. Committing the CSV back *is* the pipeline's state store — there's no
 database or artifact cache doing that job instead. It's also a genuinely accumulating
 real-world dataset, unlike the fully-reproducible synthetic simulator output.
+
+---
+
+## 2026-08-21 — SeatGeek metrics changed from ticket pricing to event score/popularity, after real API approval revealed the original assumption was wrong
+
+**Pre-approval assumption:** `pull_seatgeek.py` was designed and built entirely against
+publicly-documented Events endpoint fields, before real API access existed. It read
+`stats.lowest_price`, `stats.average_price`, and `stats.listing_count` off each event
+and aggregated them into three weekly metrics: `min_ticket_price`, `avg_ticket_price`,
+`listing_count`. This was flagged at the time as unverified (see the 2026-08-15
+weekly-data-scraping plan's Task 11) — "SeatGeek field-name assumptions... remain
+unverified against the real API until then."
+
+**What changed:** Victor's SeatGeek API application was approved on 2026-08-21, but the
+approval email explicitly stated the granted access tier does not return individual
+listings or price information. A live diagnostic call against the real Events endpoint
+(`GET https://api.seatgeek.com/2/events?performers.slug=los-angeles-rams`) confirmed
+this directly: every event's `stats` field comes back as an **empty object** (`{}`) —
+none of `lowest_price`, `average_price`, or `listing_count` exist in this account's
+responses at all. The original design's central assumption was simply wrong, not a
+minor field-name mismatch.
+
+**Post-approval decision:** `pull_seatgeek.py` now reads two fields that *are* present
+on every event in the real response — the top-level `score` and `popularity` fields,
+SeatGeek's own per-event demand/interest metrics — and aggregates them into
+`avg_event_score` and `avg_event_popularity`. Same weekly-aggregate shape, same
+pipeline, same orchestrator, same tests structure; only the underlying metrics changed.
+
+**Why this is a reasonable substitute, not a downgrade:** the original intent was never
+"track ticket prices" for its own sake — it was to capture real-world market interest
+in the Rams as a weekly signal. `score`/`popularity` measure exactly that (SeatGeek
+recalculates them from live market activity), just without exposing the pricing
+mechanism behind it. The pipeline's actual purpose is unaffected; only the specific
+numbers changed.
+
+**Reference:** live-verified 2026-08-21 against the real SeatGeek Events API with an
+approved `SEATGEEK_CLIENT_ID`; full pull_all_sources() run succeeded with all three
+sources (`seatgeek`, `google_trends`, `wikipedia_pageviews`) returning real data, no
+failures.

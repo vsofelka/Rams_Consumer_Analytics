@@ -30,16 +30,17 @@ def pull_seatgeek(week_start_date, client_id=None, session=None):
     if not events:
         return []
 
-    # Truthy checks (not `is not None`) deliberately exclude both a missing value
-    # and SeatGeek's `0` sentinel, which means "no pricing data available" on some
-    # events, not "$0 tickets" — a literal 0 would otherwise drag the min/avg down.
-    lowest_prices = [e.get("stats", {})["lowest_price"] for e in events if e.get("stats", {}).get("lowest_price")]
-    average_prices = [e.get("stats", {})["average_price"] for e in events if e.get("stats", {}).get("average_price")]
-    listing_counts = [e.get("stats", {}).get("listing_count", 0) for e in events]
+    # This account's approved API tier returns an empty `stats` object on every
+    # event (confirmed via a live diagnostic call, 2026-08-21) — no lowest_price,
+    # average_price, or listing_count is available. `score` and `popularity` are
+    # top-level fields SeatGeek does populate; they stand in as a market-interest
+    # signal in place of the ticket-pricing data this plan originally assumed.
+    # See docs/DECISION_LOG.md for the full pre/post comparison.
+    scores = [e["score"] for e in events]
+    popularities = [e["popularity"] for e in events]
 
     metrics = {
-        "min_ticket_price": min(lowest_prices) if lowest_prices else 0,
-        "avg_ticket_price": sum(average_prices) / len(average_prices) if average_prices else 0,
-        "listing_count": sum(listing_counts),
+        "avg_event_score": sum(scores) / len(scores),
+        "avg_event_popularity": sum(popularities) / len(popularities),
     }
     return normalize_metrics(week_start_date, "seatgeek", metrics)

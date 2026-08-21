@@ -42,8 +42,8 @@ Tests: `pytest -v`.
 ## Data Refresh
 
 Alongside the synthetic simulator, this repo also pulls three **real-world weekly
-signals** about the LA Rams — SeatGeek home-game ticket prices, Google search
-interest, and Wikipedia pageviews — and appends them to
+signals** about the LA Rams — SeatGeek home-game demand/popularity scores, Google
+search interest, and Wikipedia pageviews — and appends them to
 [`data_sources/processed/weekly_data.csv`](data_sources/processed/weekly_data.csv).
 This is a separate, standalone dataset; it isn't wired into the engagement score or
 churn view, which stay fully synthetic and reproducible on purpose (see

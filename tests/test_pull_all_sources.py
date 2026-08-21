@@ -121,7 +121,13 @@ def test_pull_all_sources_one_failure_does_not_block_the_others(tmp_path):
     assert set(df["source"]) == {"google_trends", "wikipedia_pageviews"}
 
 
-def test_pull_all_sources_missing_seatgeek_credentials_is_a_skip_not_a_failure(tmp_path):
+def test_pull_all_sources_missing_seatgeek_credentials_is_a_skip_not_a_failure(tmp_path, monkeypatch):
+    # Explicitly clear the env var rather than relying on it being absent from the
+    # ambient environment — a real SEATGEEK_CLIENT_ID in a local .env (loaded via
+    # data_sources.common's load_dotenv() at import time) would otherwise leak in
+    # here and make pull_seatgeek() attempt a real network call instead of raising
+    # MissingCredentialsError.
+    monkeypatch.delenv("SEATGEEK_CLIENT_ID", raising=False)
     csv_path = str(tmp_path / "weekly_data.csv")
 
     with patch("data_sources.pull_all_sources.pull_google_trends") as mock_trends, \
