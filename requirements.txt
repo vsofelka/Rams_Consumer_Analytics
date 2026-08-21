@@ -7,3 +7,7 @@ scipy>=1.10
 requests>=2.31
 pytrends>=4.9
 python-dotenv>=1.0
+google-cloud-bigquery>=3.0
+db-dtypes>=1.0
+pyarrow>=14.0
+pandas-gbq>=0.26.1
