@@ -1,0 +1,5 @@
+week_start_date,source,metric_name,value
+2026-08-10,seatgeek,avg_event_popularity,0.8666353537300001
+2026-08-10,seatgeek,avg_event_score,0.72837556661
+2026-08-10,google_trends,search_interest_score,11.0
+2026-08-10,wikipedia_pageviews,pageview_count,16279.0
