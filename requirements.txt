@@ -8,3 +8,4 @@ google-cloud-bigquery>=3.0
 db-dtypes>=1.0
 pyarrow>=14.0
 pandas-gbq>=0.26.1
+scikit-learn>=1.3
