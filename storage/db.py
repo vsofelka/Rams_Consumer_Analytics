@@ -20,6 +20,7 @@ CREATE TABLE IF NOT EXISTS weekly_snapshots (
     tier TEXT,
     at_risk INTEGER,
     clv REAL,
+    segment TEXT,
     PRIMARY KEY (fan_id, week),
     FOREIGN KEY (fan_id) REFERENCES fans(fan_id)
 )

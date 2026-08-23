@@ -69,3 +69,15 @@ def test_write_weekly_snapshot_round_trips_clv_column():
     write_weekly_snapshot(conn, snapshot)
     result = pd.read_sql("SELECT * FROM weekly_snapshots", conn)
     assert result.loc[0, "clv"] == 4000.0
+
+
+def test_write_weekly_snapshot_round_trips_segment_column():
+    conn = sqlite3.connect(":memory:")
+    create_schema(conn)
+    snapshot = pd.DataFrame({
+        "fan_id": [1], "week": [1], "engagement_score": [55.0], "tier": ["Cooling"],
+        "at_risk": [False], "clv": [4000.0], "segment": ["Mid Engagement Standard-Tier"],
+    })
+    write_weekly_snapshot(conn, snapshot)
+    result = pd.read_sql("SELECT * FROM weekly_snapshots", conn)
+    assert result.loc[0, "segment"] == "Mid Engagement Standard-Tier"
