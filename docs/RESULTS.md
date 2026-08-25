@@ -100,8 +100,27 @@ By week 18, the 300 fans split into:
 | High Engagement Club-Tier | 35 |
 
 This matches what the design spike predicted: premium- and club-tier fans each cluster
-together largely regardless of engagement level, while the much larger standard tier
-(60% of the population) splits into multiple segments by engagement level instead.
+together **entirely** regardless of engagement level — both "Low Engagement Premium-Tier"
+and "High Engagement Club-Tier" are 100% pure by plan tier, not a majority — while the
+much larger standard tier (60% of the population) splits into multiple segments by
+engagement level instead.
+
+**Read the engagement descriptor carefully on the two tier-pure segments.** For
+"Low Engagement Premium-Tier" and "High Engagement Club-Tier," the descriptor is a rank
+of that *entire plan tier's* average engagement against the other four clusters — not a
+statement about the individual fans inside it. "Low Engagement Premium-Tier" contains
+every premium fan regardless of their own engagement, including some of the season's
+highest-scoring Super Fans; the label means "premium fans average 4th of 5 clusters by
+engagement this week," not "these are the low-engagement premium fans." Only within the
+three standard-tier segments does the descriptor actually distinguish fans from each
+other by their own engagement level.
+
+**Tenure doesn't split cleanly along engagement level either.** Checking the real run:
+the three standard-tier segments' average tenure is 4.8 years (Mid Engagement), 14.7
+years (Highest Engagement), and 15.7 years (Lowest Engagement) — the newest fans land in
+the middle group, while both the most- and least-engaged standard-tier fans skew
+veteran. Tenure is clearly doing real work in how these clusters form; it just isn't a
+simple "longer tenure means higher engagement" story.
 
 **One honest gap:** `tenure_years` is a real input to this clustering, but its specific
 contribution wasn't rigorously isolated during design — the spike's attempt to check it
@@ -121,6 +140,7 @@ What it does **not** prove: this is a rule validated against **synthetic, plante
 
 - Design doc: [`docs/superpowers/specs/2026-08-10-fan-engagement-churn-design.md`](superpowers/specs/2026-08-10-fan-engagement-churn-design.md)
 - CLV design: [`docs/superpowers/specs/2026-08-19-clv-design.md`](superpowers/specs/2026-08-19-clv-design.md)
+- Segmentation design: [`docs/superpowers/specs/2026-08-22-segmentation-design.md`](superpowers/specs/2026-08-22-segmentation-design.md)
 - Decision log: [`docs/DECISION_LOG.md`](DECISION_LOG.md)
 - Notebooks: [`notebooks/01_generate_season.ipynb`](../notebooks/01_generate_season.ipynb) (simulator run), [`notebooks/02_engagement_model.ipynb`](../notebooks/02_engagement_model.ipynb) (engagement score), [`notebooks/03_churn_view.ipynb`](../notebooks/03_churn_view.ipynb) (churn rule + validation), [`notebooks/04_sql_analysis.ipynb`](../notebooks/04_sql_analysis.ipynb) (SQL analysis + statistical validation)
 

@@ -2,6 +2,8 @@ import pandas as pd
 from sklearn.cluster import KMeans
 from sklearn.preprocessing import StandardScaler
 
+# N_CLUSTERS and ENGAGEMENT_DESCRIPTORS are coupled -- changing one without the other
+# raises an IndexError inside the rank lookup below.
 N_CLUSTERS = 5
 RANDOM_STATE = 42
 ENGAGEMENT_DESCRIPTORS = ["Highest", "High", "Mid", "Low", "Lowest"]
