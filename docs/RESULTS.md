@@ -77,6 +77,40 @@ That gap is worth calling out rather than glossing over: being flagged at-risk *
 
 **Every dollar figure above is a placeholder, not a validated estimate.** The annual-value-per-plan-tier and expected-remaining-years-per-fandom-tier assumptions behind it (`docs/superpowers/specs/2026-08-19-clv-design.md`) are reasonable, round, order-of-magnitude numbers pending real Rams pricing and renewal-rate research — not a fitted or validated model. Unlike the churn rule above, there is no planted ground truth to check CLV against; treat these numbers as a demonstration of the calculation, not a real revenue estimate.
 
+## Fan segments
+
+Alongside the churn and CLV views, every fan is also assigned a **behavioral segment**
+each week — a k-means cluster (k=5) over engagement score, plan tier, and tenure, given
+a deterministic name based on that cluster's relative engagement rank and dominant plan
+tier (see `scoring/segments.py` and `docs/superpowers/specs/2026-08-22-segmentation-design.md`
+for the method).
+
+Segments are refit fresh every week — like the fandom tiers, they're a snapshot, not
+something accumulated over time — so the breakdown below is week 18 only, not comparable
+week-to-week the way a fixed category would be.
+
+By week 18, the 300 fans split into:
+
+| Segment | Fans |
+|---|---:|
+| Low Engagement Premium-Tier | 88 |
+| Mid Engagement Standard-Tier | 71 |
+| Highest Engagement Standard-Tier | 55 |
+| Lowest Engagement Standard-Tier | 51 |
+| High Engagement Club-Tier | 35 |
+
+This matches what the design spike predicted: premium- and club-tier fans each cluster
+together largely regardless of engagement level, while the much larger standard tier
+(60% of the population) splits into multiple segments by engagement level instead.
+
+**One honest gap:** `tenure_years` is a real input to this clustering, but its specific
+contribution wasn't rigorously isolated during design — the spike's attempt to check it
+used an invalid statistical test (correlating an arbitrary, unordered cluster-label
+number against tenure). The segmentation is genuinely non-redundant with the existing
+fandom tiers (verified during design — clustering on the raw behavioral signals instead
+was tried first and rejected for being redundant), but exactly how much tenure drives
+segment membership versus plan tier is not precisely quantified here.
+
 ## What this does and doesn't prove
 
 This validates that the rule-based heuristic is directionally correct — it enriches meaningfully for fans on a known decline path, at roughly **7–8x the precision of random flagging** (quantified against chance in the statistical validation section above), and it reaches 1.00 precision at weeks 12–13. That's a genuine, real result from a real run of the pipeline.
