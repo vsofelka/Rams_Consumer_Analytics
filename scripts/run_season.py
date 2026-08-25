@@ -16,6 +16,7 @@ from season_simulator.events import generate_week_events
 from scoring.engagement import compute_weekly_engagement_scores
 from scoring.churn import apply_churn_rule
 from scoring.clv import estimate_clv
+from scoring.segments import assign_segments
 from storage.db import create_schema, write_fans, write_weekly_snapshot
 
 
@@ -81,6 +82,13 @@ def run_season(
                 axis=1,
             )
             snapshot = snapshot.drop(columns=["plan_tier"])
+
+            fan_features = week_scores[["fan_id", "engagement_score"]].merge(
+                fans[["fan_id", "plan_tier", "tenure_years"]], on="fan_id"
+            )
+            segments = assign_segments(fan_features)
+            snapshot = snapshot.merge(segments[["fan_id", "segment"]], on="fan_id")
+
             snapshot.to_csv(os.path.join(output_dir, f"week_{week:02d}.csv"), index=False)
             weekly_snapshots[week] = snapshot
 
