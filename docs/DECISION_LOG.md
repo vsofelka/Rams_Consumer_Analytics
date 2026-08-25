@@ -175,3 +175,40 @@ fitted or validated model. This is a deliberate honesty choice: the docs say so 
 rather than implying a rigor the estimate doesn't have.
 
 **Reference:** [`docs/superpowers/specs/2026-08-19-clv-design.md`](superpowers/specs/2026-08-19-clv-design.md).
+
+---
+
+## 2026-08-22 — Added behavioral fan segmentation, after a spike ruled out the obvious feature set
+
+**Decision:** Add `scoring/segments.py`, clustering each week's fan population (k-means,
+k=5, refit fresh every week) on `engagement_score`, `plan_tier`, and `tenure_years`, with
+a deterministic name derived from each cluster's relative engagement rank and dominant
+plan tier (e.g. "Highest Engagement Club-Tier"). The result is one new `segment` column
+on `weekly_snapshots`, flowing through the same SQLite → BigQuery pipes as every other
+column.
+
+**Why:** The job posting names "attitudinal/behavioral clusters" explicitly
+(`docs/job_description.md`), and the project previously had no segmentation beyond the
+four engagement tiers, which are just percentile bands of one number. A throwaway spike
+first tried clustering on the three raw behavioral signals (attendance/digital/purchase)
+and found them 0.94-0.97 correlated with each other in this simulator — real clustering
+on them just re-derived overall engagement level, redundant with the existing tiers. A
+second spike, clustering on `(engagement_score, plan_tier, tenure_years)` instead — three
+genuinely independent variables by construction in `season_simulator/fans.py` — found
+real, non-redundant structure (clusters split primarily by plan tier, with engagement-
+level sub-splits within the dominant standard tier). This decision builds on the second,
+working feature set, not the first.
+
+Clustering refits fresh every week rather than being fit once and reused, matching this
+project's existing in-season principle (every other score/tier is recomputed from
+scratch each week, never using full-season knowledge). The tradeoff — raw cluster index
+numbers aren't stable across weeks — is resolved by deriving a semantic name each week
+instead of exposing the raw label; the raw label (`segment_cluster`) is never persisted.
+
+One honest gap, not resolved here: `tenure_years`'s specific contribution to cluster
+membership was not rigorously isolated during the spike (a correlation check against
+arbitrary/unordered k-means label numbers isn't a valid test) — the segmentation is real
+and non-redundant, but exactly how much tenure drives it versus plan tier is not
+precisely quantified.
+
+**Reference:** [`docs/superpowers/specs/2026-08-22-segmentation-design.md`](superpowers/specs/2026-08-22-segmentation-design.md).
