@@ -223,3 +223,11 @@ numbers changed.
 approved `SEATGEEK_CLIENT_ID`; full pull_all_sources() run succeeded with all three
 sources (`seatgeek`, `google_trends`, `wikipedia_pageviews`) returning real data, no
 failures.
+
+---
+
+## 2026-08-26 — Reframed as a standalone personal project, no longer tied to a specific job application
+
+**Decision:** This project is no longer positioned as having been built for an application to a specific role. `docs/job_description.md` (the original job posting) has been removed from the repo. `README.md` and `PROJECT_CONTEXT.md` no longer describe the project as "built for an application" — it's now framed as a personal portfolio project inspired by a past LA Rams internship. Past decision-log entries that cite the original job posting as their reasoning are left unchanged, as an accurate record of why those choices were made at the time.
+
+**Why:** The specific application this project targeted is no longer live. Rather than let the project's value expire with it, it continues as a standalone piece — keeping the Rams domain (a genuine personal connection worth keeping) while dropping the framing that ties its worth to one specific, no-longer-relevant opportunity. This also lifts the "build one well, not several shallowly" scoping constraint that existed specifically to fit the application's timeline — future additions can expand more freely, as long as they stay connected to the existing core rather than becoming disconnected side projects.

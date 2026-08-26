@@ -1,6 +1,6 @@
 # Rams Consumer Analytics
 
-A project built for an application to the Los Angeles Rams' **Intern, Marketing Analytics & Consumer Insights** role. See [`docs/job_description.md`](docs/job_description.md) for the full posting.
+A personal analytics project inspired by a past internship with the Los Angeles Rams' Marketing department — a hands-on exploration of fan engagement, churn detection, lifetime value, and behavioral segmentation for a professional sports franchise.
 
 ## What this is
 
@@ -85,7 +85,6 @@ unaffected when it happens, and the pull simply resumes the following week.
   - [`docs/DECISION_LOG.md`](docs/DECISION_LOG.md) — chronological record of key decisions and why they were made
   - [`docs/powerbi/`](docs/powerbi/) — Power BI build guide and DAX measures reference
   - [`docs/superpowers/specs/`](docs/superpowers/specs/) — technical design docs
-  - [`docs/job_description.md`](docs/job_description.md) — the job posting this project is built against
 - [`PROJECT_CONTEXT.md`](PROJECT_CONTEXT.md) — full project background and open questions
 
 ## Scope
