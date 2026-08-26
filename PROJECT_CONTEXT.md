@@ -1,16 +1,14 @@
-# Project Context — LA Rams Marketing Analytics & Consumer Insights
+# Project Context — Fan Engagement Analytics
 
 This file summarizes everything discussed about this project so it can be handed to Claude Code without relying on a separate chat history. Reference it when prompting Claude Code.
 
 For the reasoning behind each decision below, see [`docs/DECISION_LOG.md`](docs/DECISION_LOG.md). For the technical design of the current build, see [`docs/superpowers/specs/2026-08-10-fan-engagement-churn-design.md`](docs/superpowers/specs/2026-08-10-fan-engagement-churn-design.md).
 
-## The Application
+## Origin
 
-**Company:** Los Angeles Rams
-**Role:** Intern, Marketing Analytics & Consumer Insights
-**Applicant:** Victor Sofelkanik — recent BBA graduate (Information Systems & Business Analytics, Loyola Marymount University). Also has a past LA Rams Training Camp Internship (Marketing Department), which is a direct personal connection to this organization.
+**Author:** Victor Sofelkanik — BBA graduate (Information Systems & Business Analytics, Loyola Marymount University). Has a past LA Rams Training Camp Internship (Marketing Department), which is the personal connection that inspired this project's domain.
 
-Full job description: see [`docs/job_description.md`](docs/job_description.md).
+This project originally started as a build for a specific LA Rams internship application. It has since become a standalone personal portfolio project — not tied to that or any other specific job application — kept in the Rams domain because of that genuine personal connection, not because it's targeting that employer specifically.
 
 ## Current Direction
 
@@ -31,7 +29,7 @@ Full job description: see [`docs/job_description.md`](docs/job_description.md).
 
 ## What NOT to Do
 
-- **Don't build multiple use cases at once.** The JD lists many possible models (CLV, churn, clusters, purchase motivators), and it would be easy to try to touch all of them. The plan is to build one well rather than build several shallowly.
+- **Prefer depth and layered connection over scattered breadth.** Multiple analytical angles (churn, CLV, segmentation, etc.) are fine and encouraged — the practice that's worked well is building each new one as a layer on the same core data/pipeline (same fans, same weekly snapshots) rather than a disconnected side project, so the whole thing still reads as one coherent system, not a pile of unrelated demos.
 - **Don't scaffold a specific deliverable format prematurely.** It's deliberately left open (see Current Direction above) — the modeling core stays decoupled from presentation so the format choice can be made cheaply once there's something real to wrap.
 - **Build something that actually runs, not a mockup.** The point of this project is being able to speak concretely about real design decisions and real output — a static mockup or hardcoded example wouldn't hold up under follow-up questions.
 - **Keep the code readable.** It may be extended live with Claude Code, so clarity matters more than cleverness.
@@ -45,4 +43,3 @@ Full job description: see [`docs/job_description.md`](docs/job_description.md).
 
 - **How we got here, and why:** [`docs/DECISION_LOG.md`](docs/DECISION_LOG.md) — chronological record of key decisions as the project was worked through.
 - **Current technical design:** [`docs/superpowers/specs/`](docs/superpowers/specs/) — design docs for each part of the build.
-- **The job posting this project is built against:** [`docs/job_description.md`](docs/job_description.md).

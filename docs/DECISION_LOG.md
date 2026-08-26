@@ -152,6 +152,41 @@ Initial rough ranking: engagement score > churn > upsell propensity.
 
 ---
 
+## 2026-08-15 — Real-world weekly data pipeline added, kept separate from the simulator
+
+**Decision:** Add a standalone weekly pipeline (`data_sources/`) that pulls three real
+signals — SeatGeek ticket prices, Google Trends search interest, and Wikipedia
+pageviews, all for the LA Rams — into `data_sources/processed/weekly_data.csv`, on an
+automated weekly cadence via GitHub Actions. This data is not wired into
+`season_simulator/`, `scoring/`, or `storage/db.py`.
+
+**Why:** The engagement-score/churn pipeline's validation depends entirely on the
+planted-churn cohort's known ground truth (see the 2026-08-12 entry) — mixing in real
+external data there would blur that. This is instead a second, independent real-data
+asset: a chance to demonstrate an actual data-collection pipeline (scheduled jobs,
+external API integration, idempotent re-runs) without touching the part of the project
+whose validity depends on staying synthetic.
+
+**Reference:** [`docs/superpowers/specs/2026-08-15-weekly-data-scraping-design.md`](superpowers/specs/2026-08-15-weekly-data-scraping-design.md).
+
+---
+
+## 2026-08-15 — weekly_data.csv is committed to git, not gitignored
+
+**Decision:** Unlike `data/weekly_snapshots/` and `data/fan_analytics.db`,
+`data_sources/processed/weekly_data.csv` is tracked in git and pushed back to the repo
+by the GitHub Actions workflow that generates it.
+
+**Why:** GitHub Actions runners are ephemeral — each scheduled run starts from a fresh
+checkout with no memory of prior runs. The idempotency check ("has this source already
+been pulled this week?") reads the committed CSV to know what's already there; if the
+file weren't committed, that check would be unanswerable and every run would start
+from zero. Committing the CSV back *is* the pipeline's state store — there's no
+database or artifact cache doing that job instead. It's also a genuinely accumulating
+real-world dataset, unlike the fully-reproducible synthetic simulator output.
+
+---
+
 ## 2026-08-19 — Added a dynamic Customer Lifetime Value estimate alongside churn
 
 **Decision:** Add `scoring/clv.py`, computing a per-fan, per-week CLV estimate from
@@ -175,6 +210,45 @@ fitted or validated model. This is a deliberate honesty choice: the docs say so 
 rather than implying a rigor the estimate doesn't have.
 
 **Reference:** [`docs/superpowers/specs/2026-08-19-clv-design.md`](superpowers/specs/2026-08-19-clv-design.md).
+
+---
+
+## 2026-08-21 — SeatGeek metrics changed from ticket pricing to event score/popularity, after real API approval revealed the original assumption was wrong
+
+**Pre-approval assumption:** `pull_seatgeek.py` was designed and built entirely against
+publicly-documented Events endpoint fields, before real API access existed. It read
+`stats.lowest_price`, `stats.average_price`, and `stats.listing_count` off each event
+and aggregated them into three weekly metrics: `min_ticket_price`, `avg_ticket_price`,
+`listing_count`. This was flagged at the time as unverified (see the 2026-08-15
+weekly-data-scraping plan's Task 11) — "SeatGeek field-name assumptions... remain
+unverified against the real API until then."
+
+**What changed:** Victor's SeatGeek API application was approved on 2026-08-21, but the
+approval email explicitly stated the granted access tier does not return individual
+listings or price information. A live diagnostic call against the real Events endpoint
+(`GET https://api.seatgeek.com/2/events?performers.slug=los-angeles-rams`) confirmed
+this directly: every event's `stats` field comes back as an **empty object** (`{}`) —
+none of `lowest_price`, `average_price`, or `listing_count` exist in this account's
+responses at all. The original design's central assumption was simply wrong, not a
+minor field-name mismatch.
+
+**Post-approval decision:** `pull_seatgeek.py` now reads two fields that *are* present
+on every event in the real response — the top-level `score` and `popularity` fields,
+SeatGeek's own per-event demand/interest metrics — and aggregates them into
+`avg_event_score` and `avg_event_popularity`. Same weekly-aggregate shape, same
+pipeline, same orchestrator, same tests structure; only the underlying metrics changed.
+
+**Why this is a reasonable substitute, not a downgrade:** the original intent was never
+"track ticket prices" for its own sake — it was to capture real-world market interest
+in the Rams as a weekly signal. `score`/`popularity` measure exactly that (SeatGeek
+recalculates them from live market activity), just without exposing the pricing
+mechanism behind it. The pipeline's actual purpose is unaffected; only the specific
+numbers changed.
+
+**Reference:** live-verified 2026-08-21 against the real SeatGeek Events API with an
+approved `SEATGEEK_CLIENT_ID`; full pull_all_sources() run succeeded with all three
+sources (`seatgeek`, `google_trends`, `wikipedia_pageviews`) returning real data, no
+failures.
 
 ---
 
@@ -212,3 +286,11 @@ and non-redundant, but exactly how much tenure drives it versus plan tier is not
 precisely quantified.
 
 **Reference:** [`docs/superpowers/specs/2026-08-22-segmentation-design.md`](superpowers/specs/2026-08-22-segmentation-design.md).
+
+---
+
+## 2026-08-26 — Reframed as a standalone personal project, no longer tied to a specific job application
+
+**Decision:** This project is no longer positioned as having been built for an application to a specific role. `docs/job_description.md` (the original job posting) has been removed from the repo. `README.md` and `PROJECT_CONTEXT.md` no longer describe the project as "built for an application" — it's now framed as a personal portfolio project inspired by a past LA Rams internship. Past decision-log entries that cite the original job posting as their reasoning are left unchanged, as an accurate record of why those choices were made at the time.
+
+**Why:** The specific application this project targeted is no longer live. Rather than let the project's value expire with it, it continues as a standalone piece — keeping the Rams domain (a genuine personal connection worth keeping) while dropping the framing that ties its worth to one specific, no-longer-relevant opportunity. This also lifts the "build one well, not several shallowly" scoping constraint that existed specifically to fit the application's timeline — future additions can expand more freely, as long as they stay connected to the existing core rather than becoming disconnected side projects.
