@@ -2,7 +2,7 @@
 
 ## Context
 
-The MVP (synthetic season simulator → rolling engagement score → rule-based churn view → notebooks) and Phase A (SQLite backbone + statistical validation, see `docs/superpowers/specs/2026-08-12-sql-stats-backbone-design.md`) are both complete. That earlier doc's Phase B named a Streamlit dashboard as the next step. **This design supersedes that Phase B decision.**
+The MVP (synthetic season simulator → rolling engagement score → rule-based churn view → notebooks) and Phase A (SQLite backbone + statistical validation, see `docs/design/specs/2026-08-12-sql-stats-backbone-design.md`) are both complete. That earlier doc's Phase B named a Streamlit dashboard as the next step. **This design supersedes that Phase B decision.**
 
 Two things changed the plan:
 

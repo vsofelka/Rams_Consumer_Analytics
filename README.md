@@ -84,8 +84,7 @@ unaffected when it happens, and the pull simply resumes the following week.
   - [`docs/RESULTS.md`](docs/RESULTS.md) — full validated results, week-by-week metrics, and limitations
   - [`docs/DECISION_LOG.md`](docs/DECISION_LOG.md) — chronological record of key decisions and why they were made
   - [`docs/powerbi/`](docs/powerbi/) — Power BI build guide and DAX measures reference
-  - [`docs/superpowers/specs/`](docs/superpowers/specs/) — technical design docs
-- [`PROJECT_CONTEXT.md`](PROJECT_CONTEXT.md) — full project background and open questions
+  - [`docs/design/specs/`](docs/design/specs/) — technical design docs
 
 ## Scope
 

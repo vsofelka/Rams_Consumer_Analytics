@@ -1,7 +1,5 @@
 # SQL Backbone + Statistical Validation Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
-
 **Goal:** Add a real SQLite database (loaded directly by the existing simulation pipeline) and a statistical-validation module (Mann-Whitney U, Wilson confidence intervals, a hypergeometric test) to the existing fan-engagement/churn MVP, demonstrated through a new SQL-analysis notebook and documented in `docs/RESULTS.md`.
 
 **Architecture:** `scripts/run_season.py` gains an optional `db_path` parameter — when given, it writes each week's data into a SQLite database (`fans` and `weekly_snapshots` tables) alongside its existing, unchanged CSV output. A new `scoring/stats.py` module adds three pure, independently-testable statistical functions. A new notebook (`notebooks/04_sql_analysis.ipynb`) reads only from the SQLite database — never the simulator or scoring code directly — runs real SQL (joins, window functions, aggregations, a CTE), and calls the new stats functions to validate the churn rule statistically.

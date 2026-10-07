@@ -1,9 +1,5 @@
 # Weekly Real-World Data Scraping — Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development
-> (recommended) or superpowers:executing-plans to implement this plan task-by-task.
-> Steps use checkbox (`- [ ]`) syntax for tracking.
-
 **Goal:** Build `data_sources/` — three independently testable pull modules
 (SeatGeek, Google Trends, Wikipedia pageviews), shared normalize/retry/env-loading
 utilities, and an orchestrator that determines "this week," skips sources already
@@ -1093,7 +1089,7 @@ asset: a chance to demonstrate an actual data-collection pipeline (scheduled job
 external API integration, idempotent re-runs) without touching the part of the project
 whose validity depends on staying synthetic.
 
-**Reference:** [`docs/superpowers/specs/2026-08-15-weekly-data-scraping-design.md`](superpowers/specs/2026-08-15-weekly-data-scraping-design.md).
+**Reference:** [`docs/design/specs/2026-08-15-weekly-data-scraping-design.md`](design/specs/2026-08-15-weekly-data-scraping-design.md).
 
 ---
 

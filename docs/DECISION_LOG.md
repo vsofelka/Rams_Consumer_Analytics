@@ -28,7 +28,7 @@ Initial rough ranking: engagement score > churn > upsell propensity.
 
 **Why:** This is the only direction that maps onto two exact phrases from the JD at once — "churn predictions" and "degrees and **shifts** of fandom" (a rolling score is literally what "shifts" describes) — plus the segmentation/clustering qualifications bullet ("fan/customer segmentation schemas," "attitudinal/behavioral clusters"). Purchase/upsell propensity's JD anchor ("purchase motivators") was comparatively weak — motivators describes *why* someone buys, not *whether* they will, so it's a looser fit than the other two.
 
-**Reference:** [`docs/superpowers/specs/2026-08-10-fan-engagement-churn-design.md`](superpowers/specs/2026-08-10-fan-engagement-churn-design.md).
+**Reference:** [`docs/design/specs/2026-08-10-fan-engagement-churn-design.md`](design/specs/2026-08-10-fan-engagement-churn-design.md).
 
 ---
 
@@ -54,7 +54,7 @@ Initial rough ranking: engagement score > churn > upsell propensity.
 
 **Decision:** Full architecture, data flow, engagement score computation, churn rule, and validation approach documented — including a "planted churn cohort" baked into the simulator (a known subset of STMs deliberately scripted into decline) so the churn rule's precision/recall can be measured against ground truth rather than eyeballed.
 
-**Reference:** [`docs/superpowers/specs/2026-08-10-fan-engagement-churn-design.md`](superpowers/specs/2026-08-10-fan-engagement-churn-design.md), commit `8523feb`.
+**Reference:** [`docs/design/specs/2026-08-10-fan-engagement-churn-design.md`](design/specs/2026-08-10-fan-engagement-churn-design.md), commit `8523feb`.
 
 ---
 
@@ -98,7 +98,7 @@ Initial rough ranking: engagement score > churn > upsell propensity.
 
 **Also considered and deferred:** real historical data, to replace the synthetic simulator. Rejected for now — the planted-churn cohort is what makes the current validation honest (known ground truth to measure precision/recall against); real data wouldn't have that, and no concrete real dataset is in hand yet. Revisit if a specific dataset becomes available. Also considered: a lightweight trained classifier as a second, genuinely different model type (would strengthen the "different types of models" angle further) — deferred out of this round to keep Phase A scoped; noted as future work.
 
-**Reference:** [`docs/superpowers/specs/2026-08-12-sql-stats-backbone-design.md`](superpowers/specs/2026-08-12-sql-stats-backbone-design.md).
+**Reference:** [`docs/design/specs/2026-08-12-sql-stats-backbone-design.md`](design/specs/2026-08-12-sql-stats-backbone-design.md).
 
 ---
 
@@ -124,7 +124,7 @@ Initial rough ranking: engagement score > churn > upsell propensity.
 
 **Why:** The job posting names Power BI explicitly, twice — once for building dashboards/reports/visualizations, once under reporting-software experience. Streamlit is not mentioned anywhere in the posting. This is the same direct-JD-language mapping that drove the original engagement-score/churn-view use-case decision.
 
-**Reference:** [`docs/superpowers/specs/2026-08-15-powerbi-bigquery-design.md`](superpowers/specs/2026-08-15-powerbi-bigquery-design.md).
+**Reference:** [`docs/design/specs/2026-08-15-powerbi-bigquery-design.md`](design/specs/2026-08-15-powerbi-bigquery-design.md).
 
 ---
 
@@ -167,7 +167,7 @@ asset: a chance to demonstrate an actual data-collection pipeline (scheduled job
 external API integration, idempotent re-runs) without touching the part of the project
 whose validity depends on staying synthetic.
 
-**Reference:** [`docs/superpowers/specs/2026-08-15-weekly-data-scraping-design.md`](superpowers/specs/2026-08-15-weekly-data-scraping-design.md).
+**Reference:** [`docs/design/specs/2026-08-15-weekly-data-scraping-design.md`](design/specs/2026-08-15-weekly-data-scraping-design.md).
 
 ---
 
@@ -204,12 +204,12 @@ next to it as an unrelated static number.
 
 Unlike the churn rule, CLV has no equivalent ground truth to validate against — there's no
 planted "true lifetime value" to measure precision/recall against the way there is for
-churn. Every dollar figure and retention-years assumption here (`docs/superpowers/specs/2026-08-19-clv-design.md`)
+churn. Every dollar figure and retention-years assumption here (`docs/design/specs/2026-08-19-clv-design.md`)
 is a clearly labeled placeholder pending real Rams pricing and renewal-rate data, not a
 fitted or validated model. This is a deliberate honesty choice: the docs say so directly
 rather than implying a rigor the estimate doesn't have.
 
-**Reference:** [`docs/superpowers/specs/2026-08-19-clv-design.md`](superpowers/specs/2026-08-19-clv-design.md).
+**Reference:** [`docs/design/specs/2026-08-19-clv-design.md`](design/specs/2026-08-19-clv-design.md).
 
 ---
 
@@ -285,7 +285,7 @@ arbitrary/unordered k-means label numbers isn't a valid test) — the segmentati
 and non-redundant, but exactly how much tenure drives it versus plan tier is not
 precisely quantified.
 
-**Reference:** [`docs/superpowers/specs/2026-08-22-segmentation-design.md`](superpowers/specs/2026-08-22-segmentation-design.md).
+**Reference:** [`docs/design/specs/2026-08-22-segmentation-design.md`](design/specs/2026-08-22-segmentation-design.md).
 
 ---
 

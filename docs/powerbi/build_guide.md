@@ -1,6 +1,6 @@
 # Power BI Build Guide
 
-Prerequisite: `python scripts/load_to_bigquery.py` has been run successfully — see `docs/superpowers/plans/2026-08-15-bigquery-load-and-powerbi-docs.md` Task 5 for the verification numbers this depends on.
+Prerequisite: `python scripts/load_to_bigquery.py` has been run successfully — see `docs/design/plans/2026-08-15-bigquery-load-and-powerbi-docs.md` Task 5 for the verification numbers this depends on.
 
 ## 1. Connect to BigQuery
 

@@ -1,7 +1,5 @@
 # BigQuery Load + Power BI Docs Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
-
 **Goal:** Load the existing validated `fans`/`weekly_snapshots` data into BigQuery (tables + three analytical SQL views), and produce the documentation (DAX reference, build guide, decision log entries) needed to build the Power BI report on top of it.
 
 **Architecture:** A new standalone script, `scripts/load_to_bigquery.py`, reads from the existing `data/fan_analytics.db` SQLite file (untouched — same file notebook 04 already uses) and loads two tables plus three views into BigQuery project `rams-fan-analytics`, dataset `rams_fan_analytics`. Every BigQuery-calling function takes the client as a parameter, so tests inject a mock client and never touch the network. The Power BI report itself is built manually in the Power BI Desktop GUI by the user, following the build guide this plan produces — that GUI work is not part of this plan.
@@ -626,7 +624,7 @@ Create `docs/powerbi/build_guide.md`:
 ```markdown
 # Power BI Build Guide
 
-Prerequisite: `python scripts/load_to_bigquery.py` has been run successfully — see `docs/superpowers/plans/2026-08-15-bigquery-load-and-powerbi-docs.md` Task 5 for the verification numbers this depends on.
+Prerequisite: `python scripts/load_to_bigquery.py` has been run successfully — see `docs/design/plans/2026-08-15-bigquery-load-and-powerbi-docs.md` Task 5 for the verification numbers this depends on.
 
 ## 1. Connect to BigQuery
 
@@ -705,7 +703,7 @@ Add to the end of `docs/DECISION_LOG.md`, after the existing final entry:
 
 **Why:** The job posting names Power BI explicitly, twice — once for building dashboards/reports/visualizations, once under reporting-software experience. Streamlit is not mentioned anywhere in the posting. This is the same direct-JD-language mapping that drove the original engagement-score/churn-view use-case decision.
 
-**Reference:** [`docs/superpowers/specs/2026-08-15-powerbi-bigquery-design.md`](superpowers/specs/2026-08-15-powerbi-bigquery-design.md).
+**Reference:** [`docs/design/specs/2026-08-15-powerbi-bigquery-design.md`](design/specs/2026-08-15-powerbi-bigquery-design.md).
 
 ---
 

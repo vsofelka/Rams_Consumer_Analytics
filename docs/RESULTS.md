@@ -60,7 +60,7 @@ These three tests were each chosen to fit the shape of the actual data — a ran
 
 ## Estimated fan value
 
-Alongside the churn signal, every fan's weekly snapshot also carries an estimated **Customer Lifetime Value (CLV)** — a dollar figure derived from their plan tier, current fandom tier, and at-risk status (see `scoring/clv.py` and `docs/superpowers/specs/2026-08-19-clv-design.md` for the formula).
+Alongside the churn signal, every fan's weekly snapshot also carries an estimated **Customer Lifetime Value (CLV)** — a dollar figure derived from their plan tier, current fandom tier, and at-risk status (see `scoring/clv.py` and `docs/design/specs/2026-08-19-clv-design.md` for the formula).
 
 CLV is recalculated fresh every week from that week's fandom tier and at-risk status — it
 is a snapshot, not something accumulated over time. The figures below are therefore
@@ -75,14 +75,14 @@ By week 18:
 
 That gap is worth calling out rather than glossing over: being flagged at-risk *itself* depresses a fan's CLV estimate, since both a lower fandom tier and the at-risk discount reduce their expected remaining years. A naive reading might expect "at-risk fans" to mean "fans worth worrying about in dollar terms," but the formula's structure actually makes them look like a small fraction of total value by the time they're already flagged — a real limitation of a formula built this way, not a data anomaly.
 
-**Every dollar figure above is a placeholder, not a validated estimate.** The annual-value-per-plan-tier and expected-remaining-years-per-fandom-tier assumptions behind it (`docs/superpowers/specs/2026-08-19-clv-design.md`) are reasonable, round, order-of-magnitude numbers pending real Rams pricing and renewal-rate research — not a fitted or validated model. Unlike the churn rule above, there is no planted ground truth to check CLV against; treat these numbers as a demonstration of the calculation, not a real revenue estimate.
+**Every dollar figure above is a placeholder, not a validated estimate.** The annual-value-per-plan-tier and expected-remaining-years-per-fandom-tier assumptions behind it (`docs/design/specs/2026-08-19-clv-design.md`) are reasonable, round, order-of-magnitude numbers pending real Rams pricing and renewal-rate research — not a fitted or validated model. Unlike the churn rule above, there is no planted ground truth to check CLV against; treat these numbers as a demonstration of the calculation, not a real revenue estimate.
 
 ## Fan segments
 
 Alongside the churn and CLV views, every fan is also assigned a **behavioral segment**
 each week — a k-means cluster (k=5) over engagement score, plan tier, and tenure, given
 a deterministic name based on that cluster's relative engagement rank and dominant plan
-tier (see `scoring/segments.py` and `docs/superpowers/specs/2026-08-22-segmentation-design.md`
+tier (see `scoring/segments.py` and `docs/design/specs/2026-08-22-segmentation-design.md`
 for the method).
 
 Segments are refit fresh every week — like the fandom tiers, they're a snapshot, not
@@ -138,9 +138,9 @@ What it does **not** prove: this is a rule validated against **synthetic, plante
 
 ## Where to look for more
 
-- Design doc: [`docs/superpowers/specs/2026-08-10-fan-engagement-churn-design.md`](superpowers/specs/2026-08-10-fan-engagement-churn-design.md)
-- CLV design: [`docs/superpowers/specs/2026-08-19-clv-design.md`](superpowers/specs/2026-08-19-clv-design.md)
-- Segmentation design: [`docs/superpowers/specs/2026-08-22-segmentation-design.md`](superpowers/specs/2026-08-22-segmentation-design.md)
+- Design doc: [`docs/design/specs/2026-08-10-fan-engagement-churn-design.md`](design/specs/2026-08-10-fan-engagement-churn-design.md)
+- CLV design: [`docs/design/specs/2026-08-19-clv-design.md`](design/specs/2026-08-19-clv-design.md)
+- Segmentation design: [`docs/design/specs/2026-08-22-segmentation-design.md`](design/specs/2026-08-22-segmentation-design.md)
 - Decision log: [`docs/DECISION_LOG.md`](DECISION_LOG.md)
 - Notebooks: [`notebooks/01_generate_season.ipynb`](../notebooks/01_generate_season.ipynb) (simulator run), [`notebooks/02_engagement_model.ipynb`](../notebooks/02_engagement_model.ipynb) (engagement score), [`notebooks/03_churn_view.ipynb`](../notebooks/03_churn_view.ipynb) (churn rule + validation), [`notebooks/04_sql_analysis.ipynb`](../notebooks/04_sql_analysis.ipynb) (SQL analysis + statistical validation)
 

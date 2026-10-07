@@ -1,5 +1,5 @@
 # Placeholder dollar/retention assumptions, pending real Rams pricing and
-# renewal-rate data — see docs/superpowers/specs/2026-08-19-clv-design.md.
+# renewal-rate data — see docs/design/specs/2026-08-19-clv-design.md.
 # Every value here is independently swappable once real figures exist.
 
 ANNUAL_VALUE = {

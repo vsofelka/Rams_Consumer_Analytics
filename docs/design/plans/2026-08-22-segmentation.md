@@ -1,9 +1,5 @@
 # Fan Segmentation Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development
-> (recommended) or superpowers:executing-plans to implement this plan task-by-task.
-> Steps use checkbox (`- [ ]`) syntax for tracking.
-
 **Goal:** Add a per-fan-per-week behavioral segment (a named k-means cluster over
 engagement score, plan tier, and tenure) that reuses the existing pipeline's data,
 flows through SQLite and BigQuery the same way every other column already does, and
@@ -17,7 +13,7 @@ dominant plan tier. The result becomes one new column, `segment`, on the existin
 
 **Tech Stack:** Python, pandas, scikit-learn (new dependency), sqlite3, pytest.
 
-**Spec:** [`docs/superpowers/specs/2026-08-22-segmentation-design.md`](../specs/2026-08-22-segmentation-design.md)
+**Spec:** [`docs/design/specs/2026-08-22-segmentation-design.md`](../specs/2026-08-22-segmentation-design.md)
 
 ## Global Constraints
 
@@ -436,7 +432,7 @@ arbitrary/unordered k-means label numbers isn't a valid test) — the segmentati
 and non-redundant, but exactly how much tenure drives it versus plan tier is not
 precisely quantified.
 
-**Reference:** [`docs/superpowers/specs/2026-08-22-segmentation-design.md`](superpowers/specs/2026-08-22-segmentation-design.md).
+**Reference:** [`docs/design/specs/2026-08-22-segmentation-design.md`](design/specs/2026-08-22-segmentation-design.md).
 ```
 
 - [ ] **Step 2: Add one pointer sentence to README.md**

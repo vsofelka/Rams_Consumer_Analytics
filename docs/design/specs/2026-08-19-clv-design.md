@@ -4,7 +4,7 @@
 
 The engagement-score/churn pipeline and its Power BI dashboard are complete and merged to main. This adds a second layer on top of that same core — not a new, separate use case — directly addressing a gap identified in a recruiter-perspective review of the project against `docs/job_description.md`: the JD names customer lifetime value explicitly, alongside churn, and the project currently has no dollar-value story at all. Every number the churn view produces today is a count ("13 fans flagged"); this makes those counts a revenue figure a marketing team would actually act on.
 
-This is deliberately scoped as an extension of the existing churn/engagement work — same fans, same weekly data, same at-risk list — rather than a standalone CLV model, per the project's own "build one well, not several shallowly" principle (`PROJECT_CONTEXT.md`). No new simulator, no new validation methodology, no new page in the dashboard.
+This is deliberately scoped as an extension of the existing churn/engagement work — same fans, same weekly data, same at-risk list — rather than a standalone CLV model, per the project's own "build one well, not several shallowly" principle (see `docs/DECISION_LOG.md`). No new simulator, no new validation methodology, no new page in the dashboard.
 
 No real Rams pricing or renewal-rate data exists. Every dollar figure and every retention assumption below is a clearly labeled **placeholder** — reasonable, round, order-of-magnitude numbers, not a fitted or researched model. They live in one place (`scoring/clv.py`) specifically so they're trivial to replace once real figures are available.
 

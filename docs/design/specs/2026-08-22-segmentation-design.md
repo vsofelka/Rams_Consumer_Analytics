@@ -28,7 +28,7 @@ the actual feature basis:
 
 This spec builds on finding 2. Like CLV, this is deliberately scoped as an extension of
 the existing core — same fans, same weekly data — rather than a standalone model, per
-the project's "build one well, not several shallowly" principle (`PROJECT_CONTEXT.md`).
+the project's "build one well, not several shallowly" principle (see `docs/DECISION_LOG.md`).
 
 ## Goals
 

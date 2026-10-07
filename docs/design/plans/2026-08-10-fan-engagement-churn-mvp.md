@@ -1,7 +1,5 @@
 # Fan Engagement Score + Churn Risk View — 48-Hour MVP Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
-
 **Goal:** Build a working, validated, end-to-end pipeline — synthetic season simulator → rolling fan engagement score → churn risk view — that runs week-by-week and proves itself against a known "planted churn cohort," delivered as notebooks (no dashboard yet) plus a short results summary stating the actual validated numbers.
 
 **Architecture:** A season simulator (`season_simulator/`) generates STM population and weekly behavior data one week at a time. Two pure-function scoring modules (`scoring/engagement.py`, `scoring/churn.py`) consume accumulated history and produce a score and a risk flag per fan per week. A runner script (`scripts/run_season.py`) wires these together and writes structured CSV output per week. Notebooks read only the CSV output — never the simulator or scoring code directly — keeping the modeling core fully decoupled from presentation, per the design doc.

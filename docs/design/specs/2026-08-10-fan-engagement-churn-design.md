@@ -5,7 +5,7 @@
 
 ## Purpose
 
-Built as a project for Victor Sofelkanik's application to the LA Rams' Intern, Marketing Analytics & Consumer Insights role. See [`PROJECT_CONTEXT.md`](../../../PROJECT_CONTEXT.md) and [`docs/job_description.md`](../job_description.md) for full background.
+Built as a project for Victor Sofelkanik's application to the LA Rams' Intern, Marketing Analytics & Consumer Insights role. See [`docs/DECISION_LOG.md`](../../DECISION_LOG.md) for full background.
 
 Core constraint: the project must contribute value **in-season**, not just as a preseason planning exercise — so it's built as a rolling pipeline that updates on a recurring cadence as new data comes in, not a static one-off analysis.
 
