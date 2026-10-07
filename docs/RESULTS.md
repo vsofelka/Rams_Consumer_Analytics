@@ -54,7 +54,7 @@ The results above are point estimates from a single run. `notebooks/04_sql_analy
 
 - **Is the planted-churn cohort's decline statistically real?** Yes — a Mann-Whitney U test comparing the 25 planted-churn fans' week-18 engagement scores (median 5.60) against everyone else's (median 54.63) gives p = 1.15e-15, far below 0.05. The gap visible in the charts is not sampling noise.
 - **How precise are the precision/recall numbers, really?** With only 13 fans flagged, the point estimates carry real uncertainty: precision is 0.62, with a 95% Wilson confidence interval of (0.36, 0.82), and recall is 0.32, with a 95% Wilson confidence interval of (0.17, 0.52). Read these as ranges, not exact figures.
-- **Does the rule beat random chance?** Yes, decisively. Flagging 13 fans at random out of 300, with 25 true churners in the population, would be expected to catch only about 1.08 true positives by luck (13 × 25 / 300). The rule actually caught 8. A hypergeometric test puts the probability of matching or beating 8 true positives by chance alone at p = 0.000001.
+- **Does the rule beat random chance?** Yes, decisively. Flagging 13 fans at random out of 300, with 25 true churners in the population, would be expected to catch only about 1.08 true positives by luck (13 × 25 / 300). The rule actually caught 8. A hypergeometric test puts the probability of matching or beating 8 true positives by chance alone at about p = 0.0000007, under 0.000001.
 
 These three tests were each chosen to fit the shape of the actual data — a rank-based test for a non-normally-distributed score, an interval method suited to small counts, and an exact test suited to sampling without replacement — rather than one default technique applied everywhere; see `docs/DECISION_LOG.md` for the full reasoning.
 
@@ -102,7 +102,7 @@ By week 18, the 300 fans split into:
 This matches what the design spike predicted: premium- and club-tier fans each cluster
 together **entirely** regardless of engagement level — both "Low Engagement Premium-Tier"
 and "High Engagement Club-Tier" are 100% pure by plan tier, not a majority — while the
-much larger standard tier (60% of the population) splits into multiple segments by
+much larger standard tier (59% of the population) splits into multiple segments by
 engagement level instead.
 
 **Read the engagement descriptor carefully on the two tier-pure segments.** For

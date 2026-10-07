@@ -1,24 +1,65 @@
 # Rams Consumer Analytics
 
-A personal analytics project inspired by a past internship with the Los Angeles Rams' Marketing department — a hands-on exploration of fan engagement, churn detection, lifetime value, and behavioral segmentation for a professional sports franchise.
+After my training camp internship with the Los Angeles Rams marketing department, I built this project around a question a team's marketing staff cares about: which season ticket members are losing interest before they decide not to renew? It simulates a season of 300 members, scores each fan's engagement every week, flags fans whose engagement keeps dropping, and puts a dollar value and a behavioral segment on every fan. Because the fans are simulated, I planted a group that I knew was declining, so I could measure how well the alert actually works.
 
-## What this is
+## Results
 
-A working, end-to-end pipeline that models a Season Ticket Member's (STM's) **degree of fandom** on a rolling basis — a 0–100 engagement score blending attendance, digital activity, and purchase behavior over a trailing, recency-weighted window — and classifies each fan into one of four fandom tiers: **Super Fan, Engaged, Cooling, Dormant**. A second view derives **churn risk** directly from *shifts* in that score's trajectory, rather than from a separately trained model: a fan is flagged "at risk" when their score has fallen for several consecutive weeks *and* sits below a population percentile threshold — a sustained shift away from their prior degree of fandom, not one bad week. A third lens attaches an estimated dollar value to that same trajectory — see [`docs/RESULTS.md`](docs/RESULTS.md) for the numbers and an explicit note on what is and isn't validated about them. A fourth lens groups fans each week into five named behavioral segments (e.g. "Highest Engagement Club-Tier") using k-means over engagement, plan tier, and tenure — see [`docs/RESULTS.md`](docs/RESULTS.md) for which segments actually appeared in a real run.
+- In weeks 12 and 13, the churn alert flagged 15 fans and all 15 were fans I had planted to decline (precision 1.00, recall 0.60, F1 0.75).
+- By the end of the season it was about 7 times more precise than flagging fans at random, and a statistical test showed that wasn't luck (p < 0.000001).
+- The alert gets weaker late in the season. The rule looks for a score that keeps falling, and once a fan has already hit bottom their score stops falling, so the alert loses them. I explain this in [docs/RESULTS.md](docs/RESULTS.md).
+- A GitHub Actions job pulls real Rams demand, search, and pageview data every Monday.
 
-The whole thing is deliberately built to run **in-season**: the simulator advances one week at a time, and each week's score and churn flag are computed only from the history available up to that week — never from the full season at once. That mirrors how it would actually be used against live data.
+## What's real and what's simulated
 
-Because real STM churn labels don't exist for a synthetic season, the simulator plants a known cohort of 25 fans (out of 300) whose engagement is scripted into a decline starting week 6. That gives a ground truth to measure detection against with real precision/recall, rather than eyeballing a chart.
+The weekly SeatGeek demand scores, Google search interest, and Wikipedia pageviews for the Rams are real. The 300 season ticket members, their weekly behavior, the 25 fans I planted to decline, and the dollar values are simulated. The prices behind the dollar values are placeholders, not real Rams pricing.
 
-### Validated result
+I kept the engagement score and the churn alert on the simulated season so every result can be reproduced exactly with the same seed (`seed=42`). The reasoning is in [docs/DECISION_LOG.md](docs/DECISION_LOG.md).
 
-Against that planted cohort, detection **peaks mid-to-late season and then decays**:
+## Dashboard
 
-- **Weeks 12–13 (best):** precision **1.00**, recall **0.60**, F1 **0.75** — 15 fans flagged, all 15 genuinely from the planted cohort.
-- **Week 15:** recall peaks at **0.64**.
-- **Week 18 (final):** precision **0.62**, recall **0.32**, F1 **0.42** — 8 of the 25 planted churners caught, 5 false alarms out of 13 total flags.
+I built a three page Power BI report, [powerbi/Fan_Engagement_Dashboard.pbix](powerbi/Fan_Engagement_Dashboard.pbix), on BigQuery tables and views loaded by [scripts/load_to_bigquery.py](scripts/load_to_bigquery.py).
 
-The late-season decay is the interesting part, and it's a real property of the rule rather than a bug: the percentile gate passes all 25 planted churners by week 18, but the *strict week-over-week decline* requirement stops being satisfied once a declining fan's score bottoms out near the decay floor. A "still falling" rule goes quiet once a fan has already hit bottom. [`docs/RESULTS.md`](docs/RESULTS.md) has the full week-by-week table, the diagnosis, and an honest discussion of what this does and does not prove.
+1. Season Trend: precision, recall, and F1 for all 18 weeks, average engagement by plan tier, and season totals.
+2. Weekly Snapshot: a week slicer that updates the tier counts and the list of fans flagged at risk that week.
+3. Fan Drill-Through: pick one fan and see their engagement over the season next to whether they were in the planted group.
+
+How I built it is in [docs/powerbi/build_guide.md](docs/powerbi/build_guide.md), and the DAX measures are in [docs/powerbi/dax_measures.md](docs/powerbi/dax_measures.md).
+
+## Tools
+
+| Part of the project | Tools |
+|---|---|
+| Simulation and scoring | Python, pandas, NumPy |
+| Segments | scikit-learn (k-means) |
+| Statistics | SciPy (Mann-Whitney U test, Wilson intervals, hypergeometric test) |
+| SQL | SQLite, with window functions and joins in notebook 04 |
+| Warehouse and dashboard | Google BigQuery, Power BI, DAX |
+| Automation | GitHub Actions |
+| Real data | SeatGeek API, Google Trends (pytrends), Wikipedia pageviews API |
+| Testing | pytest |
+
+## How it works
+
+Every week of the simulated season, each season ticket member gets four things:
+
+1. An engagement score from 0 to 100, based on attendance, digital activity, and purchases over the last several weeks, with recent weeks counting more. Each fan also gets a tier: Super Fan, Engaged, Cooling, or Dormant.
+2. A churn flag. A fan is flagged at risk when their score has dropped three weeks in a row and they're in the bottom 25% of fans that week. I used a simple rule instead of a trained model so it's easy to explain and test.
+3. A lifetime value estimate in dollars, based on their plan tier, their engagement tier, and whether they're flagged.
+4. A segment. I used k-means to group fans into five segments by engagement, plan tier, and how many years they've had tickets.
+
+The season runs one week at a time, and each week only uses data up to that week. That's how it would work during a real season, where you don't know what happens next.
+
+To test the churn flag, the simulator picks 25 of the 300 fans and makes their engagement drop starting in week 6. Since I know exactly which fans are declining, I can measure how many the alert catches and how many it gets wrong.
+
+### How well the alert worked
+
+The alert did best in the middle and late part of the season and then dropped off:
+
+- Weeks 12 and 13 were the best: precision 1.00, recall 0.60, F1 0.75. It flagged 15 fans and all 15 were from the planted group.
+- Recall was highest in week 15, at 0.64.
+- By week 18: precision 0.62, recall 0.32, F1 0.42. It caught 8 of the 25 planted fans and had 5 false alarms out of 13 flags.
+
+The drop at the end comes from how the rule works. By week 18 all 25 planted fans are in the bottom 25%, but the rule also needs the score to keep falling every week, and fans who have already hit bottom stop falling. Adding a second condition for fans who stay low would help with this. The full week by week table, the statistical tests, and what these results do and don't show are in [docs/RESULTS.md](docs/RESULTS.md).
 
 ## How to run it
 
@@ -27,75 +68,47 @@ pip install -r requirements.txt
 python scripts/run_season.py
 ```
 
-`scripts/run_season.py` generates the season and writes `data/weekly_snapshots/` (`fans.csv` plus `week_01.csv` … `week_18.csv`). **That directory is gitignored, so a fresh clone has no data until you run this.** The run is seeded (`seed=42`) and deterministic.
+`scripts/run_season.py` creates the season and saves it to `data/weekly_snapshots/` (`fans.csv` plus one file for each of the 18 weeks) and to a SQLite database (`data/fan_analytics.db`) for the SQL notebook. These files aren't saved in the repo, so you need to run this first. The seed is fixed, so you get the same results every time.
 
 Then open the notebooks in order:
 
-1. [`notebooks/01_generate_season.ipynb`](notebooks/01_generate_season.ipynb) — runs the simulator and sanity-checks its output (the planted cohort should visibly diverge from everyone else around week 6).
-2. [`notebooks/02_engagement_model.ipynb`](notebooks/02_engagement_model.ipynb) — engagement score distribution, tier breakdown, and per-fan trend lines.
-3. [`notebooks/03_churn_view.ipynb`](notebooks/03_churn_view.ipynb) — the actionable at-risk list plus validation against the planted cohort.
+1. [notebooks/01_generate_season.ipynb](notebooks/01_generate_season.ipynb) runs the simulator and checks the output. The planted group should clearly separate from everyone else around week 6.
+2. [notebooks/02_engagement_model.ipynb](notebooks/02_engagement_model.ipynb) shows how the engagement scores are spread out, the tier counts, and trend lines for individual fans.
+3. [notebooks/03_churn_view.ipynb](notebooks/03_churn_view.ipynb) shows the at risk list and checks it against the planted group.
+4. [notebooks/04_sql_analysis.ipynb](notebooks/04_sql_analysis.ipynb) has the SQL analysis (window functions, joins, and aggregations) and the statistical tests.
 
-Notebooks 02 and 03 read only the generated CSVs — never the simulator or scoring code — which keeps the modeling core fully decoupled from how it's presented.
+Notebooks 02 through 04 only read the saved output. They never call the simulator or the scoring code directly.
 
-Tests: `pytest -v`.
+To run the tests: `pytest -v`
 
-## Data Refresh
+## Weekly data pull
 
-Alongside the synthetic simulator, this repo also pulls three **real-world weekly
-signals** about the LA Rams — SeatGeek home-game demand/popularity scores, Google
-search interest, and Wikipedia pageviews — and appends them to
-[`data_sources/processed/weekly_data.csv`](data_sources/processed/weekly_data.csv).
-This is a separate, standalone dataset; it isn't wired into the engagement score or
-churn view, which stay fully synthetic and reproducible on purpose (see
-[`docs/DECISION_LOG.md`](docs/DECISION_LOG.md)).
+Besides the simulated season, the repo pulls three kinds of real weekly data about the Rams: SeatGeek demand and popularity scores for home games, Google search interest, and Wikipedia pageviews. Each week's numbers are added to [data_sources/processed/weekly_data.csv](data_sources/processed/weekly_data.csv). This data is kept separate from the engagement score and the churn flag so those stay reproducible.
 
-A [GitHub Actions workflow](.github/workflows/weekly-data-pull.yml) runs this
-automatically every **Monday at 9am UTC**, and commits the updated CSV straight back
-to the repo. The pipeline is **idempotent**: it checks which sources already have a
-row for the current week before pulling anything, so triggering it again mid-week
-never creates duplicate rows — it just skips whatever's already there.
+A [GitHub Actions workflow](.github/workflows/weekly-data-pull.yml) runs every Monday at 9am UTC and saves the updated file back to the repo. Before it pulls anything, it checks which sources already have data for that week, so running it twice in the same week won't add duplicate rows.
 
-To trigger a pull manually: open the **Actions** tab → **Weekly Data Pull** →
-**Run workflow**.
+To run it yourself, go to the Actions tab, open Weekly Data Pull, and click Run workflow.
 
-One note on reliability: Google Trends is pulled via `pytrends`, an unofficial,
-unauthenticated wrapper around Google's own interest data — there's no supported API
-for it. It's retried a few times with backoff if it gets rate-limited, but it can
-still occasionally fail or skip a week. That's expected behavior for a free,
-unofficial data source, not a bug — the other two sources (SeatGeek, Wikipedia) are
-unaffected when it happens, and the pull simply resumes the following week.
+Google Trends comes from pytrends, which isn't an official Google API. The script retries a few times if Google limits the requests, but once in a while it can still miss a week. When that happens the other two sources still get pulled, and Google Trends picks back up the next week.
 
 ## Repo layout
 
-- `season_simulator/` — synthetic STM population (`fans.py`) and weekly behavior events (`events.py`), including the scripted decline for the planted churn cohort
-- `scoring/` — pure-function modeling core: `engagement.py` (rolling score + tier), `churn.py` (the at-risk rule), `clv.py` (CLV estimate), `validation.py` (precision/recall against ground truth)
-- `scripts/run_season.py` — wires the simulator and scoring together and writes the weekly CSV output
-- `data_sources/` — weekly real-world data pipeline: `pull_seatgeek.py`,
-  `pull_google_trends.py`, `pull_wikipedia_pageviews.py`, `common.py` (shared
-  normalization/retry helpers), `pull_all_sources.py` (the orchestrator run weekly by
-  [`.github/workflows/weekly-data-pull.yml`](.github/workflows/weekly-data-pull.yml)) —
-  see the "Data Refresh" section above
-- `notebooks/` — the three analysis notebooks described above
-- `tests/` — pytest suite covering the simulator, scoring, and runner
-- `data/weekly_snapshots/` — generated weekly output (**gitignored**; created by `scripts/run_season.py`)
-- `scripts/load_to_bigquery.py` — loads the validated fans/weekly_snapshots data into BigQuery, plus the analytical views the dashboard reads from
-- `powerbi/Fan_Engagement_Dashboard.pbix` — the Power BI report described above
+- `season_simulator/`: the simulated fans (`fans.py`) and their weekly behavior (`events.py`), including the decline for the planted group
+- `scoring/`: the engagement score (`engagement.py`), churn rule (`churn.py`), lifetime value (`clv.py`), k-means segments (`segments.py`), statistical tests (`stats.py`), and precision and recall checks (`validation.py`)
+- `storage/`: the SQLite tables the season run writes to (`db.py`)
+- `scripts/run_season.py`: runs the simulator and scoring and saves the weekly output
+- `scripts/load_to_bigquery.py`: loads the output into BigQuery and creates the views the dashboard uses
+- `data_sources/`: the weekly data pull (`pull_seatgeek.py`, `pull_google_trends.py`, `pull_wikipedia_pageviews.py`, `common.py` for shared helpers, and `pull_all_sources.py`, which the workflow runs)
+- `notebooks/`: the four notebooks above
+- `powerbi/Fan_Engagement_Dashboard.pbix`: the Power BI report
+- `tests/`: pytest tests for the simulator, scoring, storage, data pull, BigQuery load, and season run
+- `data/`: the generated output, not saved in the repo
 - `docs/`
-  - [`docs/RESULTS.md`](docs/RESULTS.md) — full validated results, week-by-week metrics, and limitations
-  - [`docs/DECISION_LOG.md`](docs/DECISION_LOG.md) — chronological record of key decisions and why they were made
-  - [`docs/powerbi/`](docs/powerbi/) — Power BI build guide and DAX measures reference
-  - [`docs/design/specs/`](docs/design/specs/) — technical design docs
+  - [docs/RESULTS.md](docs/RESULTS.md): full results, the week by week table, statistical tests, and limits
+  - [docs/DECISION_LOG.md](docs/DECISION_LOG.md): the main decisions I made and why
+  - [docs/powerbi/](docs/powerbi/): the Power BI build guide and DAX measures
+  - [docs/design/specs/](docs/design/specs/): design docs for each part of the build
 
-## Scope
+## Limits
 
-This is an MVP pass, and it's scoped honestly: a rule-based churn view rather than a trained classifier, and a synthetic season rather than real data. See [`docs/DECISION_LOG.md`](docs/DECISION_LOG.md) for the reasoning behind each of those trade-offs, and [`docs/RESULTS.md`](docs/RESULTS.md) for what the numbers do and don't support.
-
-## Dashboard
-
-The same validated data also drives a three-page **Power BI** report — [`powerbi/Fan_Engagement_Dashboard.pbix`](powerbi/Fan_Engagement_Dashboard.pbix) — built on top of the BigQuery tables and views loaded by [`scripts/load_to_bigquery.py`](scripts/load_to_bigquery.py):
-
-1. **Season Trend** — precision/recall/F1 across all 18 weeks, average engagement score by plan tier, and season-wide headline metrics.
-2. **Weekly Snapshot** — a week slicer driving live tier counts and the current at-risk fan list.
-3. **Fan Drill-Through** — pick an individual fan and see their engagement trend alongside their ground-truth planted-churn flag.
-
-See [`docs/powerbi/build_guide.md`](docs/powerbi/build_guide.md) for how it was built (including the DAX measures reference and a couple of real Power BI Desktop quirks worth knowing about) and [`docs/powerbi/dax_measures.md`](docs/powerbi/dax_measures.md) for the measures themselves.
+This is a first version. The churn flag is a rule, not a trained model, and the season is simulated, not real member data. Since I designed the decline pattern myself, the alert would likely do worse on real fans. The dollar values use placeholder prices. [docs/DECISION_LOG.md](docs/DECISION_LOG.md) explains why I made these choices, and [docs/RESULTS.md](docs/RESULTS.md) goes into what the results do and don't show.
